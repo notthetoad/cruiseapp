@@ -1,0 +1,42 @@
+package factory
+
+import (
+	"context"
+	"cruiseapp/database"
+	"cruiseapp/repository/port"
+	"database/sql"
+	"net/http"
+)
+
+const MIDDLEWARE_CTX_KEY = "repo_middleware_ctx_key"
+
+type RepoFactory interface {
+	CreatePortRepo() port.PortRepository
+}
+
+type PgRepoFactory struct {
+	Conn *sql.DB
+}
+
+func (factory PgRepoFactory) CreatePortRepo() port.PortRepository {
+	repo := port.NewPgPortRepository(factory.Conn)
+
+	return repo
+}
+
+// TODO make it generic
+func PgRepoFactoryMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		db := database.GetDb(r)
+		var factory RepoFactory = PgRepoFactory{Conn: db}
+
+		ctx := context.WithValue(r.Context(), MIDDLEWARE_CTX_KEY, factory)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func GetRepoFactory(r *http.Request) RepoFactory {
+
+	return r.Context().Value(MIDDLEWARE_CTX_KEY).(RepoFactory)
+}

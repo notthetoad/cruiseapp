@@ -1,0 +1,68 @@
+CREATE DATABASE cruisedb;
+DROP TABLE IF EXISTS cruise_person;
+DROP TABLE IF EXISTS cruise_crew_member;
+DROP TABLE IF EXISTS cruise;
+DROP TABLE IF EXISTS port;
+DROP TABLE IF EXISTS crew_member;
+DROP TABLE IF EXISTS ship;
+DROP TABLE IF EXISTS ship_model;
+DROP TABLE IF EXISTS crew_rank;
+DROP TABLE IF EXISTS person;
+
+-- DROP END --
+
+CREATE TABLE ship_model (
+	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	name VARCHAR(256)
+);
+
+CREATE TABLE ship (
+	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	name VARCHAR(512),
+	serial_number VARCHAR(128),
+	ship_model_id INTEGER REFERENCES ship_model(id)
+);
+
+CREATE TABLE crew_rank (
+	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	name VARCHAR(256)
+);
+
+CREATE TABLE person (
+	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	first_name VARCHAR(256),
+	last_name VARCHAR(256),
+	email VARCHAR(256),
+	phone VARCHAR(64)
+);
+
+CREATE TABLE crew_member (
+	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	person_id INTEGER REFERENCES person(id),
+	crew_rank INTEGER REFERENCES crew_rank(id)
+);
+
+CREATE TABLE port (
+	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	location VARCHAR(256)
+);
+
+CREATE TABLE cruise (
+	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	start_date TIMESTAMP,
+	end_date TIMESTAMP,
+	from_location INTEGER REFERENCES port(id),
+	to_location INTEGER REFERENCES port(id)
+);
+
+CREATE TABLE cruise_crew_member (
+	cruise_id INTEGER REFERENCES cruise(id),
+	crew_member_id INTEGER REFERENCES crew_member(id),
+	PRIMARY KEY (cruise_id, crew_member_id)
+);
+
+CREATE TABLE cruise_person (
+	cruise_id INTEGER REFERENCES cruise(id),
+	person_id INTEGER REFERENCES person(id),
+	PRIMARY KEY (cruise_id, person_id)
+);
