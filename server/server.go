@@ -29,5 +29,7 @@ func Router() *http.ServeMux {
 	router.HandleFunc("GET /port/{id}", handler.GetPort)
 	router.HandleFunc("POST /port", handler.CreatePort)
 
+	router.HandleFunc("POST /ship/model", handler.CreateShipModel)
+	router.HandleFunc("POST /ship", handler.CreateShip)
 	return router
 }
