@@ -3,6 +3,7 @@ package handler
 import (
 	"cruiseapp/dto"
 	"cruiseapp/model"
+	"cruiseapp/repository"
 	"cruiseapp/repository/factory"
 	"encoding/json"
 	"fmt"
@@ -69,7 +70,6 @@ func DeleteShipModel(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreateShipModelRepo()
 	err := repo.Delete(int64(id))
 	if err != nil {
-		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
