@@ -26,8 +26,13 @@ func (srv *Server) Run() {
 func Router() *http.ServeMux {
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /port/{id}", handler.GetPort)
 	router.HandleFunc("POST /port", handler.CreatePort)
+	router.HandleFunc("GET /port/{id}", handler.GetPort)
+
+	router.HandleFunc("POST /crank", handler.CreateCrewRank)
+	router.HandleFunc("GET /crank/{id}", handler.RetrieveCrewRank)
+	router.HandleFunc("PUT /crank/{id}", handler.UpdateCrewRank)
+	router.HandleFunc("DELETE /crank/{id}", handler.DeleteCrewRank)
 
 	return router
 }

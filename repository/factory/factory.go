@@ -3,6 +3,7 @@ package factory
 import (
 	"context"
 	"cruiseapp/database"
+	"cruiseapp/repository/crew"
 	"cruiseapp/repository/port"
 	"database/sql"
 	"net/http"
@@ -12,6 +13,7 @@ const MIDDLEWARE_CTX_KEY = "repo_middleware_ctx_key"
 
 type RepoFactory interface {
 	CreatePortRepo() port.PortRepository
+	CreateCrewRankRepo() crew.CrewRankRepository
 }
 
 type PgRepoFactory struct {
@@ -20,6 +22,12 @@ type PgRepoFactory struct {
 
 func (factory PgRepoFactory) CreatePortRepo() port.PortRepository {
 	repo := port.NewPgPortRepository(factory.Conn)
+
+	return repo
+}
+
+func (factory PgRepoFactory) CreateCrewRankRepo() crew.CrewRankRepository {
+	repo := crew.NewPgCrewRankRepository(factory.Conn)
 
 	return repo
 }
@@ -37,6 +45,5 @@ func PgRepoFactoryMiddleware(next http.Handler) http.Handler {
 }
 
 func GetRepoFactory(r *http.Request) RepoFactory {
-
 	return r.Context().Value(MIDDLEWARE_CTX_KEY).(RepoFactory)
 }
