@@ -5,3 +5,10 @@ type CreateCrewRankRequest struct {
 }
 
 type UpdateCrewRankRequest CreateCrewRankRequest
+
+type CreateCrewMemberRequest struct {
+	CrewRankId int64
+	PersonId   int64
+}
+
+type UpdateCrewMemberRequest CreateCrewMemberRequest

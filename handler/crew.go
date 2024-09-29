@@ -5,10 +5,24 @@ import (
 	"cruiseapp/model"
 	"cruiseapp/repository/factory"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 )
+
+func CreateCrewRank(w http.ResponseWriter, r *http.Request) {
+	var req dto.CreateCrewRankRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	repo := factory.GetRepoFactory(r).CreateCrewRankRepo()
+	var cr model.CrewRank
+	cr.Name = req.Name
+	repo.Save(&cr)
+	w.WriteHeader(http.StatusFound)
+	_ = json.NewEncoder(w).Encode(&cr)
+}
 
 func RetrieveCrewRank(w http.ResponseWriter, r *http.Request) {
 	var cr *model.CrewRank
@@ -23,21 +37,6 @@ func RetrieveCrewRank(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	w.WriteHeader(http.StatusFound)
-	_ = json.NewEncoder(w).Encode(&cr)
-}
-
-func CreateCrewRank(w http.ResponseWriter, r *http.Request) {
-	var req dto.CreateCrewRankRequest
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	crf := factory.GetRepoFactory(r).CreateCrewRankRepo()
-	var cr model.CrewRank
-	cr.Name = req.Name
-	crf.Save(&cr)
 	w.WriteHeader(http.StatusFound)
 	_ = json.NewEncoder(w).Encode(&cr)
 }
@@ -61,7 +60,6 @@ func UpdateCrewRank(w http.ResponseWriter, r *http.Request) {
 	cr.Name = req.Name
 	err = repo.Update(&cr)
 	if err != nil {
-		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -82,3 +80,29 @@ func DeleteCrewRank(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func CreateCrewMember(w http.ResponseWriter, r *http.Request) {
+	var req dto.CreateCrewMemberRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	repo := factory.GetRepoFactory(r).CreateCrewMemberRepo()
+	var cm model.CrewMember
+	cm.CrewRankId = req.CrewRankId
+	cm.PersonId = req.PersonId
+	err = repo.Save(&cm)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusFound)
+	_ = json.NewEncoder(w).Encode(&cm)
+}
+
+func RetrieveCrewMember(w http.ResponseWriter, r *http.Request) {}
+
+func UpdateCrewMember(w http.ResponseWriter, r *http.Request) {}
+
+func DeleteCrewMember(w http.ResponseWriter, r *http.Request) {}

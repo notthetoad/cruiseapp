@@ -14,6 +14,7 @@ const MIDDLEWARE_CTX_KEY = "repo_middleware_ctx_key"
 type RepoFactory interface {
 	CreatePortRepo() port.PortRepository
 	CreateCrewRankRepo() crew.CrewRankRepository
+	CreateCrewMemberRepo() crew.CrewMemberRepository
 }
 
 type PgRepoFactory struct {
@@ -28,6 +29,12 @@ func (factory PgRepoFactory) CreatePortRepo() port.PortRepository {
 
 func (factory PgRepoFactory) CreateCrewRankRepo() crew.CrewRankRepository {
 	repo := crew.NewPgCrewRankRepository(factory.Conn)
+
+	return repo
+}
+
+func (factory PgRepoFactory) CreateCrewMemberRepo() crew.CrewMemberRepository {
+	repo := crew.NewPgCrewMemberRepository(factory.Conn)
 
 	return repo
 }
