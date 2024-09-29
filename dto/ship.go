@@ -8,8 +8,6 @@ type CreateShipModelRequest struct {
 
 type UpdateShipModelRequest CreateShipModelRequest
 
-type DeleteShipModelRequest int64
-
 type CreateShipRequest struct {
 	Name         string
 	SerialNumber string
@@ -24,5 +22,3 @@ type ShipDetailsResponse struct {
 }
 
 type UpdateShipRequest CreateShipRequest
-
-type DeleteShipRequest int64

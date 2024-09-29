@@ -2,13 +2,12 @@ package handler
 
 import (
 	"cruiseapp/dto"
+	"cruiseapp/handler/util"
 	"cruiseapp/model"
-	"cruiseapp/repository"
 	"cruiseapp/repository/factory"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 )
 
 func CreateShipModel(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +32,7 @@ func CreateShipModel(w http.ResponseWriter, r *http.Request) {
 }
 
 func RetrieveShipModel(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(r.PathValue("id"))
+	id := util.ParseIdFromRequest(r)
 	sm, err := factory.GetRepoFactory(r).CreateShipModelRepo().FindById(int64(id))
 	if err != nil {
 		fmt.Println(err)
@@ -58,7 +57,7 @@ func UpdateShipModel(w http.ResponseWriter, r *http.Request) {
 
 	repo := factory.GetRepoFactory(r).CreateShipModelRepo()
 	var sm model.ShipModel
-	id, _ := strconv.Atoi(r.PathValue("id"))
+	id := util.ParseIdFromRequest(r)
 	sm.Id = int64(id)
 	sm.Name = req.Name
 	repo.Update(&sm)
@@ -66,7 +65,7 @@ func UpdateShipModel(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteShipModel(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(r.PathValue("id"))
+	id := util.ParseIdFromRequest(r)
 	repo := factory.GetRepoFactory(r).CreateShipModelRepo()
 	err := repo.Delete(int64(id))
 	if err != nil {
@@ -115,7 +114,7 @@ func CreateShip(w http.ResponseWriter, r *http.Request) {
 func RetrieveShip(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreateShipRepo()
 	var s model.Ship
-	id, _ := strconv.Atoi(r.PathValue("id"))
+	id := util.ParseIdFromRequest(r)
 	s, err := repo.FindById(int64(id))
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
@@ -144,7 +143,7 @@ func UpdateShip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, _ := strconv.Atoi(r.PathValue("id"))
+	id := util.ParseIdFromRequest(r)
 	repo := factory.GetRepoFactory(r).CreateShipRepo()
 	var s model.Ship
 	s.Id = int64(id)
@@ -162,7 +161,7 @@ func UpdateShip(w http.ResponseWriter, r *http.Request) {
 
 func DeleteShip(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreateShipRepo()
-	id, _ := strconv.Atoi(r.PathValue("id"))
+	id := util.ParseIdFromRequest(r)
 	err := repo.Delete(int64(id))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
