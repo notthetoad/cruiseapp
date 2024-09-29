@@ -4,6 +4,7 @@ import (
 	"context"
 	"cruiseapp/database"
 	"cruiseapp/repository/crew"
+	"cruiseapp/repository/person"
 	"cruiseapp/repository/port"
 	"cruiseapp/repository/ship"
 	"database/sql"
@@ -18,6 +19,7 @@ type RepoFactory interface {
 	CreateShipRepo() ship.ShipRepository
 	CreateCrewRankRepo() crew.CrewRankRepository
 	CreateCrewMemberRepo() crew.CrewMemberRepository
+	CreatePersonRepo() person.PersonRepository
 }
 
 type PgRepoFactory struct {
@@ -50,6 +52,12 @@ func (factory PgRepoFactory) CreateCrewRankRepo() crew.CrewRankRepository {
 
 func (factory PgRepoFactory) CreateCrewMemberRepo() crew.CrewMemberRepository {
 	repo := crew.NewPgCrewMemberRepository(factory.Conn)
+
+	return repo
+}
+
+func (factory PgRepoFactory) CreatePersonRepo() person.PersonRepository {
+	repo := person.NewPgPersonRepository(factory.Conn)
 
 	return repo
 }

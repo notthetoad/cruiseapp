@@ -27,3 +27,11 @@ type CrewMember struct {
 	PersonId   int64
 	CrewRankId int64
 }
+
+type Person struct {
+	Id        int64
+	FirstName string
+	LastName  string
+	Email     string
+	Phone     string
+}

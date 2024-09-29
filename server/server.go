@@ -49,5 +49,10 @@ func Router() *http.ServeMux {
 	router.HandleFunc("PUT /crew/member/{id}", handler.UpdateCrewMember)
 	router.HandleFunc("DELETE /crew/member/{id}", handler.DeleteCrewMember)
 
+	router.HandleFunc("POST /person", handler.CreatePerson)
+	router.HandleFunc("GET /person/{id}", handler.RetrievePerson)
+	router.HandleFunc("PUT /person/{id}", handler.UpdatePerson)
+	router.HandleFunc("DELETE /person/{id}", handler.DeletePerson)
+
 	return router
 }
