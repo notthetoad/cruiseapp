@@ -5,6 +5,7 @@ import (
 	"cruiseapp/database"
 	"cruiseapp/repository/crew"
 	"cruiseapp/repository/port"
+	"cruiseapp/repository/ship"
 	"database/sql"
 	"net/http"
 )
@@ -13,6 +14,8 @@ const MIDDLEWARE_CTX_KEY = "repo_middleware_ctx_key"
 
 type RepoFactory interface {
 	CreatePortRepo() port.PortRepository
+	CreateShipModelRepo() ship.ShipModelRepository
+	CreateShipRepo() ship.ShipRepository
 	CreateCrewRankRepo() crew.CrewRankRepository
 	CreateCrewMemberRepo() crew.CrewMemberRepository
 }
@@ -23,6 +26,18 @@ type PgRepoFactory struct {
 
 func (factory PgRepoFactory) CreatePortRepo() port.PortRepository {
 	repo := port.NewPgPortRepository(factory.Conn)
+
+	return repo
+}
+
+func (factory PgRepoFactory) CreateShipModelRepo() ship.ShipModelRepository {
+	repo := ship.NewPgShipModelRepository(factory.Conn)
+
+	return repo
+}
+
+func (factory PgRepoFactory) CreateShipRepo() ship.ShipRepository {
+	repo := ship.NewPgShipRepository(factory.Conn)
 
 	return repo
 }

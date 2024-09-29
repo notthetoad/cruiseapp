@@ -29,6 +29,16 @@ func Router() *http.ServeMux {
 	router.HandleFunc("POST /port", handler.CreatePort)
 	router.HandleFunc("GET /port/{id}", handler.GetPort)
 
+	router.HandleFunc("POST /ship/model", handler.CreateShipModel)
+	router.HandleFunc("GET /ship/model/{id}", handler.RetrieveShipModel)
+	router.HandleFunc("PUT /ship/model/{id}", handler.UpdateShipModel)
+	router.HandleFunc("DELETE /ship/model/{id}", handler.DeleteShipModel)
+
+	router.HandleFunc("POST /ship", handler.CreateShip)
+	router.HandleFunc("GET /ship/{id}", handler.RetrieveShip)
+	router.HandleFunc("PUT /ship/{id}", handler.UpdateShip)
+	router.HandleFunc("DELETE /ship/{id}", handler.DeleteShip)
+
 	router.HandleFunc("POST /crew/rank", handler.CreateCrewRank)
 	router.HandleFunc("GET /crew/rank/{id}", handler.RetrieveCrewRank)
 	router.HandleFunc("PUT /crew/rank/{id}", handler.UpdateCrewRank)
