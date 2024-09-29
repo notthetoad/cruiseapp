@@ -33,7 +33,7 @@ func CreateShipModel(w http.ResponseWriter, r *http.Request) {
 
 func RetrieveShipModel(w http.ResponseWriter, r *http.Request) {
 	id := util.ParseIdFromRequest(r)
-	sm, err := factory.GetRepoFactory(r).CreateShipModelRepo().FindById(int64(id))
+	sm, err := factory.GetRepoFactory(r).CreateShipModelRepo().FindById(id)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -58,7 +58,7 @@ func UpdateShipModel(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreateShipModelRepo()
 	var sm model.ShipModel
 	id := util.ParseIdFromRequest(r)
-	sm.Id = int64(id)
+	sm.Id = id
 	sm.Name = req.Name
 	repo.Update(&sm)
 	w.WriteHeader(http.StatusNoContent)
@@ -67,7 +67,7 @@ func UpdateShipModel(w http.ResponseWriter, r *http.Request) {
 func DeleteShipModel(w http.ResponseWriter, r *http.Request) {
 	id := util.ParseIdFromRequest(r)
 	repo := factory.GetRepoFactory(r).CreateShipModelRepo()
-	err := repo.Delete(int64(id))
+	err := repo.Delete(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -115,7 +115,7 @@ func RetrieveShip(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreateShipRepo()
 	var s model.Ship
 	id := util.ParseIdFromRequest(r)
-	s, err := repo.FindById(int64(id))
+	s, err := repo.FindById(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -146,7 +146,7 @@ func UpdateShip(w http.ResponseWriter, r *http.Request) {
 	id := util.ParseIdFromRequest(r)
 	repo := factory.GetRepoFactory(r).CreateShipRepo()
 	var s model.Ship
-	s.Id = int64(id)
+	s.Id = id
 	s.Name = req.Name
 	s.SerialNumber = req.SerialNumber
 	s.ShipModelId = req.ShipModelId
@@ -162,7 +162,7 @@ func UpdateShip(w http.ResponseWriter, r *http.Request) {
 func DeleteShip(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreateShipRepo()
 	id := util.ParseIdFromRequest(r)
-	err := repo.Delete(int64(id))
+	err := repo.Delete(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
