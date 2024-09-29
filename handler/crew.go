@@ -2,11 +2,11 @@ package handler
 
 import (
 	"cruiseapp/dto"
+	"cruiseapp/handler/util"
 	"cruiseapp/model"
 	"cruiseapp/repository/factory"
 	"encoding/json"
 	"net/http"
-	"strconv"
 )
 
 func CreateCrewRank(w http.ResponseWriter, r *http.Request) {
@@ -26,13 +26,9 @@ func CreateCrewRank(w http.ResponseWriter, r *http.Request) {
 
 func RetrieveCrewRank(w http.ResponseWriter, r *http.Request) {
 	var cr *model.CrewRank
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	id := util.ParseIdFromRequest(r)
 	crf := factory.GetRepoFactory(r).CreateCrewRankRepo()
-	cr, err = crf.FindById(int64(id))
+	cr, err := crf.FindById(int64(id))
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -51,12 +47,12 @@ func UpdateCrewRank(w http.ResponseWriter, r *http.Request) {
 	}
 	repo := factory.GetRepoFactory(r).CreateCrewRankRepo()
 	var cr model.CrewRank
-	id, err := strconv.Atoi(r.PathValue("id"))
+	id := util.ParseIdFromRequest(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	cr.Id = int64(id)
+	cr.Id = id
 	cr.Name = req.Name
 	err = repo.Update(&cr)
 	if err != nil {
@@ -67,13 +63,9 @@ func UpdateCrewRank(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteCrewRank(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	id := util.ParseIdFromRequest(r)
 	crf := factory.GetRepoFactory(r).CreateCrewRankRepo()
-	err = crf.Delete(int64(id))
+	err := crf.Delete(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -101,8 +93,63 @@ func CreateCrewMember(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(&cm)
 }
 
-func RetrieveCrewMember(w http.ResponseWriter, r *http.Request) {}
+func RetrieveCrewMember(w http.ResponseWriter, r *http.Request) {
+	repo := factory.GetRepoFactory(r).CreateCrewMemberRepo()
+	id := util.ParseIdFromRequest(r)
+	cm, err := repo.FindById(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	cr, err := factory.GetRepoFactory(r).CreateCrewRankRepo().FindById(cm.CrewRankId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	resp := prepareCrewMemberDetailsResp(*cm, *cr)
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(&resp)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
 
-func UpdateCrewMember(w http.ResponseWriter, r *http.Request) {}
+func UpdateCrewMember(w http.ResponseWriter, r *http.Request) {
+	var req dto.UpdateCrewMemberRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	id := util.ParseIdFromRequest(r)
+	repo := factory.GetRepoFactory(r).CreateCrewMemberRepo()
+	var cm model.CrewMember
+	cm.Id = id
+	cm.CrewRankId = req.CrewRankId
+	cm.PersonId = req.PersonId
+	err = repo.Update(&cm)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
 
-func DeleteCrewMember(w http.ResponseWriter, r *http.Request) {}
+func DeleteCrewMember(w http.ResponseWriter, r *http.Request) {
+	repo := factory.GetRepoFactory(r).CreateCrewMemberRepo()
+	id := util.ParseIdFromRequest(r)
+	err := repo.Delete(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// TODO add Person field
+func prepareCrewMemberDetailsResp(cm model.CrewMember, cr model.CrewRank) dto.CrewMemberResponse {
+	return dto.CrewMemberResponse{
+		Id:       cm.Id,
+		CrewRank: cr,
+	}
+}

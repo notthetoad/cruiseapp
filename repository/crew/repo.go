@@ -4,7 +4,6 @@ import (
 	"cruiseapp/model"
 	"cruiseapp/repository"
 	"database/sql"
-	"fmt"
 )
 
 type CrewRankRepository interface {
@@ -93,7 +92,7 @@ func NewPgCrewMemberRepository(conn *sql.DB) PgCrewMemberRepository {
 
 func (repo PgCrewMemberRepository) FindById(id int64) (*model.CrewMember, error) {
 	var cm model.CrewMember
-	err := repo.conn.QueryRow("SELECT id, crew_rank FROM crew_member WHERE id = $1", id).Scan(&cm.Id, &cm.CrewRankId)
+	err := repo.conn.QueryRow("SELECT id, crew_rank, person_id FROM crew_member WHERE id = $1", id).Scan(&cm.Id, &cm.CrewRankId, &cm.PersonId)
 	if err != nil {
 		return nil, &repository.NotFoundError{}
 	}

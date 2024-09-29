@@ -1,5 +1,7 @@
 package dto
 
+import "cruiseapp/model"
+
 type CreateCrewRankRequest struct {
 	Name string
 }
@@ -12,3 +14,9 @@ type CreateCrewMemberRequest struct {
 }
 
 type UpdateCrewMemberRequest CreateCrewMemberRequest
+
+// TODO add Person field
+type CrewMemberResponse struct {
+	Id       int64
+	CrewRank model.CrewRank
+}
