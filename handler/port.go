@@ -1,45 +1,78 @@
 package handler
 
 import (
-	db "cruiseapp/database"
 	"cruiseapp/dto"
+	"cruiseapp/handler/util"
 	"cruiseapp/model"
 	"cruiseapp/repository/factory"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
-
-func GetPort(w http.ResponseWriter, r *http.Request) {
-	var p model.Port
-	id := r.PathValue("id")
-	conn := db.GetDb(r)
-	row := conn.QueryRow(`SELECT id, location FROM port WHERE id = $1`, id)
-	err := row.Scan(&p.Id, &p.Location)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	w.WriteHeader(http.StatusFound)
-	_ = json.NewEncoder(w).Encode(p)
-}
 
 func CreatePort(w http.ResponseWriter, r *http.Request) {
 	var req dto.CreatePortRequest
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// conn := db.GetDb(r)
-	// pr := port.NewPgPortRepository(conn)
-	pr := factory.GetRepoFactory(r).CreatePortRepo()
-	// TODO handle error
+	repo := factory.GetRepoFactory(r).CreatePortRepo()
 	var p model.Port
 	p.Location = req.Location
-	pr.Save(&p)
-	w.WriteHeader(http.StatusFound)
-	_ = json.NewEncoder(w).Encode(p)
+	repo.Save(&p)
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(&p)
+}
+
+func RetrievePort(w http.ResponseWriter, r *http.Request) {
+	id := util.ParseIdFromRequest(r)
+	repo := factory.GetRepoFactory(r).CreatePortRepo()
+	port, err := repo.FindById(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	resp := preparePortResponse(*port)
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(&resp)
+
+}
+
+func UpdatePort(w http.ResponseWriter, r *http.Request) {
+	var req dto.CreatePortRequest
+	id := util.ParseIdFromRequest(r)
+	repo := factory.GetRepoFactory(r).CreatePortRepo()
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	var p model.Port
+	p.Id = id
+	p.Location = req.Location
+	err = repo.Update(&p)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func DeletePort(w http.ResponseWriter, r *http.Request) {
+	id := util.ParseIdFromRequest(r)
+	repo := factory.GetRepoFactory(r).CreatePortRepo()
+	err := repo.Delete(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func preparePortResponse(p model.Port) dto.PortResponse {
+	return dto.PortResponse{
+		Id:       p.Id,
+		Location: p.Location,
+	}
 }
