@@ -52,7 +52,7 @@ func (repo PgPortRepository) Update(port *model.Port) error {
 		return err
 	}
 	if rows != 1 {
-		return err
+		return &repository.NotFoundError{}
 	}
 
 	return nil
@@ -68,7 +68,7 @@ func (repo PgPortRepository) Delete(id int64) error {
 		return err
 	}
 	if rows != 1 {
-		return err
+		return &repository.NotFoundError{}
 	}
 
 	return nil
