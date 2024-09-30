@@ -53,7 +53,7 @@ func (repo PgShipModelRepository) FindById(id int64) (model.ShipModel, error) {
 	sm.Id = id
 	err := repo.conn.QueryRow("SELECT name FROM ship_model WHERE id = $1", id).Scan(&sm.Name)
 	if err != nil {
-		return model.ShipModel{}, &repository.NotFoundError{}
+		return model.ShipModel{}, repository.NewNotFoundError(id)
 	}
 
 	return sm, nil
@@ -68,14 +68,14 @@ func (repo PgShipModelRepository) Update(shipModel *model.ShipModel) error {
 func (repo PgShipModelRepository) Delete(id int64) error {
 	res, err := repo.conn.Exec("DELETE FROM ship_model WHERE id = $1", id)
 	if err != nil {
-		return err
+		return repository.NewForbiddenActionError(id, "delete").WithDetails(err.Error())
 	}
 	rows, err := res.RowsAffected()
 	if err != nil {
 		return err
 	}
 	if rows != 1 {
-		return &repository.NotFoundError{}
+		return repository.NewNotFoundError(id)
 	}
 
 	return nil
@@ -94,7 +94,7 @@ func (repo PgShipRepository) FindById(id int64) (model.Ship, error) {
 	s.Id = id
 	err := repo.conn.QueryRow("SELECT name, serial_number, ship_model_id FROM ship WHERE id = $1", id).Scan(&s.Name, &s.SerialNumber, &s.ShipModelId)
 	if err != nil {
-		return model.Ship{}, &repository.NotFoundError{}
+		return model.Ship{}, repository.NewNotFoundError(id)
 	}
 
 	return s, nil
@@ -107,7 +107,17 @@ func (repo PgShipRepository) Update(ship *model.Ship) error {
 	    serial_number = $2,
 	    ship_model_id = $3
 	WHERE id = $4`
-	_, err := repo.conn.Exec(stmt, ship.Name, ship.SerialNumber, ship.ShipModelId, ship.Id)
+	res, err := repo.conn.Exec(stmt, ship.Name, ship.SerialNumber, ship.ShipModelId, ship.Id)
+	if err != nil {
+		return err
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows != 1 {
+		return repository.NewNotFoundError(ship.Id)
+	}
 
 	return err
 }
@@ -122,7 +132,7 @@ func (repo PgShipRepository) Delete(id int64) error {
 		return err
 	}
 	if rows != 1 {
-		return &repository.NotFoundError{}
+		return repository.NewNotFoundError(id)
 	}
 
 	return nil
