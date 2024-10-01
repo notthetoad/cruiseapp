@@ -28,7 +28,7 @@ func (repo PgPortRepository) FindById(id int64) (*model.Port, error) {
 	row := repo.conn.QueryRow(`SELECT id, location FROM port WHERE id = $1`, id)
 	err := row.Scan(&p.Id, &p.Location)
 	if err != nil {
-		return nil, &repository.NotFoundError{}
+		return nil, repository.NewNotFoundError(id)
 	}
 	return &p, nil
 }
@@ -52,7 +52,7 @@ func (repo PgPortRepository) Update(port *model.Port) error {
 		return err
 	}
 	if rows != 1 {
-		return &repository.NotFoundError{}
+		return repository.NewNotFoundError(port.Id)
 	}
 
 	return nil
@@ -68,7 +68,7 @@ func (repo PgPortRepository) Delete(id int64) error {
 		return err
 	}
 	if rows != 1 {
-		return &repository.NotFoundError{}
+		return repository.NewNotFoundError(id)
 	}
 
 	return nil

@@ -30,7 +30,7 @@ func RetrievePort(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreatePortRepo()
 	port, err := repo.FindById(id)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		HandleError(err, w)
 		return
 	}
 	resp := preparePortResponse(*port)
@@ -45,7 +45,7 @@ func UpdatePort(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreatePortRepo()
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	var p model.Port
@@ -53,7 +53,7 @@ func UpdatePort(w http.ResponseWriter, r *http.Request) {
 	p.Location = req.Location
 	err = repo.Update(&p)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -64,7 +64,7 @@ func DeletePort(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreatePortRepo()
 	err := repo.Delete(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)

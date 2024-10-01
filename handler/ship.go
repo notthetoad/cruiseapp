@@ -6,7 +6,6 @@ import (
 	"cruiseapp/model"
 	"cruiseapp/repository/factory"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -15,8 +14,7 @@ func CreateShipModel(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		HandleError(err, w)
 		return
 	}
 
@@ -26,8 +24,7 @@ func CreateShipModel(w http.ResponseWriter, r *http.Request) {
 	repo.Save(&sm)
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(sm); err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		HandleError(err, w)
 	}
 }
 
@@ -35,13 +32,11 @@ func RetrieveShipModel(w http.ResponseWriter, r *http.Request) {
 	id := util.ParseIdFromRequest(r)
 	sm, err := factory.GetRepoFactory(r).CreateShipModelRepo().FindById(id)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	if err = json.NewEncoder(w).Encode(&sm); err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 	}
 }
 
@@ -50,8 +45,7 @@ func UpdateShipModel(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		HandleError(err, w)
 		return
 	}
 
@@ -69,7 +63,7 @@ func DeleteShipModel(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreateShipModelRepo()
 	err := repo.Delete(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -82,8 +76,7 @@ func CreateShip(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		HandleError(err, w)
 		return
 	}
 
@@ -94,42 +87,37 @@ func CreateShip(w http.ResponseWriter, r *http.Request) {
 	s.ShipModelId = req.ShipModelId
 	err = repo.Save(&s)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	sm, err := factory.GetRepoFactory(r).CreateShipModelRepo().FindById(s.ShipModelId)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
-	resp := prepareShipDetailsResp(s, sm)
+	resp := prepareShipDetailsResp(s, *sm)
 	if err = json.NewEncoder(w).Encode(&resp); err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		HandleError(err, w)
 	}
 }
 
 func RetrieveShip(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreateShipRepo()
-	var s model.Ship
+	var s *model.Ship
 	id := util.ParseIdFromRequest(r)
 	s, err := repo.FindById(id)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		HandleError(err, w)
 		return
 	}
 	sm, err := factory.GetRepoFactory(r).CreateShipModelRepo().FindById(s.ShipModelId)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
-	resp := prepareShipDetailsResp(s, sm)
+	resp := prepareShipDetailsResp(*s, *sm)
 	if err = json.NewEncoder(w).Encode(&resp); err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		HandleError(err, w)
 	}
 }
 
@@ -138,8 +126,7 @@ func UpdateShip(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		HandleError(err, w)
 		return
 	}
 
@@ -152,8 +139,7 @@ func UpdateShip(w http.ResponseWriter, r *http.Request) {
 	s.ShipModelId = req.ShipModelId
 	err = repo.Update(&s)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -164,7 +150,7 @@ func DeleteShip(w http.ResponseWriter, r *http.Request) {
 	id := util.ParseIdFromRequest(r)
 	err := repo.Delete(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
