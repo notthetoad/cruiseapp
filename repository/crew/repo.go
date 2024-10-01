@@ -71,7 +71,7 @@ func (repo PgCrewRankRepository) Update(cr *model.CrewRank) error {
 func (repo PgCrewRankRepository) Delete(id int64) error {
 	res, err := repo.conn.Exec("DELETE FROM crew_rank WHERE id = $1", id)
 	if err != nil {
-		return repository.NewForbiddenActionError(id, "delete").WithDetails("foreign key constraint")
+		return err
 	}
 	rows, err := res.RowsAffected()
 	if err != nil {
@@ -94,7 +94,7 @@ func (repo PgCrewMemberRepository) FindById(id int64) (*model.CrewMember, error)
 	var cm model.CrewMember
 	err := repo.conn.QueryRow("SELECT id, crew_rank, person_id FROM crew_member WHERE id = $1", id).Scan(&cm.Id, &cm.CrewRankId, &cm.PersonId)
 	if err != nil {
-		return nil, &repository.NotFoundError{}
+		return nil, repository.NewNotFoundError(id)
 	}
 
 	return &cm, nil
@@ -113,14 +113,14 @@ func (repo PgCrewMemberRepository) Update(cm *model.CrewMember) error {
 	stmt := "UPDATE crew_member SET crew_rank = $1 WHERE id = $2"
 	res, err := repo.conn.Exec(stmt, cm.CrewRankId, cm.Id)
 	if err != nil {
-		return &repository.NotFoundError{}
+		return err
 	}
 	rows, err := res.RowsAffected()
 	if err != nil {
-		return &repository.NotFoundError{}
+		return err
 	}
 	if rows != 1 {
-		return &repository.NotFoundError{}
+		return repository.NewNotFoundError(cm.Id)
 	}
 
 	return nil
