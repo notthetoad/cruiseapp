@@ -69,7 +69,7 @@ func DeleteShipModel(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreateShipModelRepo()
 	err := repo.Delete(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)

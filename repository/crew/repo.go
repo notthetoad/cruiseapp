@@ -71,14 +71,14 @@ func (repo PgCrewRankRepository) Update(cr *model.CrewRank) error {
 func (repo PgCrewRankRepository) Delete(id int64) error {
 	res, err := repo.conn.Exec("DELETE FROM crew_rank WHERE id = $1", id)
 	if err != nil {
-		return &repository.NotFoundError{}
+		return repository.NewForbiddenActionError(id, "delete").WithDetails("foreign key constraint")
 	}
 	rows, err := res.RowsAffected()
 	if err != nil {
-		return &repository.NotFoundError{}
+		return err
 	}
 	if rows != 1 {
-		return &repository.NotFoundError{}
+		return repository.NewNotFoundError(id)
 	}
 
 	return nil

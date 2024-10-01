@@ -67,7 +67,7 @@ func DeleteCrewRank(w http.ResponseWriter, r *http.Request) {
 	crf := factory.GetRepoFactory(r).CreateCrewRankRepo()
 	err := crf.Delete(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
