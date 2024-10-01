@@ -1,7 +1,6 @@
 package database
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -35,30 +34,6 @@ func (dh *DbHandler) Open() *sql.DB {
 	}
 
 	return conn
-}
-
-func DbMiddleware(next http.Handler) http.Handler {
-	cfg := DbConfig{
-		Host:     "localhost",
-		Port:     "5432",
-		User:     "postgres",
-		Password: "postgres",
-		DbName:   "cruisedb",
-		SslMode:  "disable",
-	}
-
-	dbHandler := DbHandler{
-		Config: cfg,
-	}
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		db := dbHandler.Open()
-		defer db.Close()
-
-		ctx := context.WithValue(r.Context(), DB_CONNECTION_CTX_KEY, db)
-
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
 }
 
 func GetDb(r *http.Request) *sql.DB {

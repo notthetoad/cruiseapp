@@ -2,25 +2,15 @@ package server
 
 import (
 	"cruiseapp/handler"
-	"fmt"
+	m "cruiseapp/server/middleware"
 	"net/http"
 )
 
-type Server struct {
-	Addr   string
-	Router *http.ServeMux
-}
-
-func NewServer() Server {
-	return Server{
-		Addr:   ":8080",
-		Router: Router(),
+func NewServer() http.Server {
+	return http.Server{
+		Addr:    ":8080",
+		Handler: m.WrapMiddleware(Router()),
 	}
-}
-
-func (srv *Server) Run() {
-	fmt.Println("starting server")
-	http.ListenAndServe(srv.Addr, srv.Router)
 }
 
 func Router() *http.ServeMux {

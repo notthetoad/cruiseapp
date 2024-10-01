@@ -1,8 +1,6 @@
 package factory
 
 import (
-	"context"
-	"cruiseapp/database"
 	"cruiseapp/repository/crew"
 	"cruiseapp/repository/person"
 	"cruiseapp/repository/port"
@@ -60,18 +58,6 @@ func (factory PgRepoFactory) CreatePersonRepo() person.PersonRepository {
 	repo := person.NewPgPersonRepository(factory.Conn)
 
 	return repo
-}
-
-// TODO make it generic
-func PgRepoFactoryMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		db := database.GetDb(r)
-		var factory RepoFactory = PgRepoFactory{Conn: db}
-
-		ctx := context.WithValue(r.Context(), MIDDLEWARE_CTX_KEY, factory)
-
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
 }
 
 func GetRepoFactory(r *http.Request) RepoFactory {
