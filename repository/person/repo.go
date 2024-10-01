@@ -67,7 +67,7 @@ func (repo PgPersonRepository) Update(p *model.Person) error {
 func (repo PgPersonRepository) Delete(id int64) error {
 	res, err := repo.conn.Exec("DELETE FROM person WHERE id = $1", id)
 	if err != nil {
-		return err
+		return repository.NewForbiddenActionError(id, "delete").WithDetails(err.Error())
 	}
 	rows, err := res.RowsAffected()
 	if err != nil {

@@ -68,7 +68,7 @@ func (repo PgShipModelRepository) Update(shipModel *model.ShipModel) error {
 func (repo PgShipModelRepository) Delete(id int64) error {
 	res, err := repo.conn.Exec("DELETE FROM ship_model WHERE id = $1", id)
 	if err != nil {
-		return err
+		return repository.NewForbiddenActionError(id, "delete").WithDetails(err.Error())
 	}
 	rows, err := res.RowsAffected()
 	if err != nil {
