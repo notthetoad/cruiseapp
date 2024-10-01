@@ -71,7 +71,9 @@ func DeletePerson(w http.ResponseWriter, r *http.Request) {
 	id := util.ParseIdFromRequest(r)
 	err := factory.GetRepoFactory(r).CreatePersonRepo().Delete(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		// log.Println(err)
+		// w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)

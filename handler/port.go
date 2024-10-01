@@ -30,7 +30,7 @@ func RetrievePort(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreatePortRepo()
 	port, err := repo.FindById(id)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		HandleError(err, w)
 		return
 	}
 	resp := preparePortResponse(*port)
