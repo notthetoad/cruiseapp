@@ -6,7 +6,6 @@ import (
 	"cruiseapp/model"
 	"cruiseapp/repository/factory"
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -25,8 +24,7 @@ func CreatePerson(w http.ResponseWriter, r *http.Request) {
 	p.Phone = req.Phone
 	err = repo.Save(&p)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		HandleError(err, w)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
@@ -40,7 +38,7 @@ func RetrievePerson(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreatePersonRepo()
 	resp, err := repo.FindById(id)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		HandleError(err, w)
 		return
 	}
 	p = preparePersonDetails(*resp)
@@ -54,7 +52,7 @@ func UpdatePerson(w http.ResponseWriter, r *http.Request) {
 	repo := factory.GetRepoFactory(r).CreatePersonRepo()
 	p, err := repo.FindById(id)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		HandleError(err, w)
 		return
 	}
 	err = json.NewDecoder(r.Body).Decode(&req)
@@ -63,7 +61,11 @@ func UpdatePerson(w http.ResponseWriter, r *http.Request) {
 	p.LastName = req.LastName
 	p.Email = req.Email
 	p.Phone = req.Phone
-	repo.Update(p)
+	err = repo.Update(p)
+	if err != nil {
+		HandleError(err, w)
+		return
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -71,8 +73,6 @@ func DeletePerson(w http.ResponseWriter, r *http.Request) {
 	id := util.ParseIdFromRequest(r)
 	err := factory.GetRepoFactory(r).CreatePersonRepo().Delete(id)
 	if err != nil {
-		// log.Println(err)
-		// w.WriteHeader(http.StatusInternalServerError)
 		HandleError(err, w)
 		return
 	}
