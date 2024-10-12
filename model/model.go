@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type Port struct {
 	Id       int64
 	Location string
@@ -34,4 +36,13 @@ type Person struct {
 	LastName  string
 	Email     string
 	Phone     string
+}
+
+type Cruise struct {
+	Id           int64
+	StartDate    time.Time
+	EndDate      time.Time
+	FromLocation Port
+	ToLocation   Port
+	Crew         []*CrewMember
 }

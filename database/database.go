@@ -37,6 +37,5 @@ func (dh *DbHandler) Open() *sql.DB {
 }
 
 func GetDb(r *http.Request) *sql.DB {
-
 	return r.Context().Value(DB_CONNECTION_CTX_KEY).(*sql.DB)
 }

@@ -4,6 +4,7 @@ import (
 	"cruiseapp/model"
 	"cruiseapp/repository"
 	"database/sql"
+	"fmt"
 )
 
 type CrewRankRepository interface {
@@ -14,6 +15,7 @@ type CrewRankRepository interface {
 }
 type CrewMemberRepository interface {
 	FindById(id int64) (*model.CrewMember, error)
+	FindAllByIds(ids []int64) ([]*model.CrewMember, error)
 	Save(cm *model.CrewMember) error
 	Update(cm *model.CrewMember) error
 	Delete(id int64) error
@@ -98,6 +100,26 @@ func (repo PgCrewMemberRepository) FindById(id int64) (*model.CrewMember, error)
 	}
 
 	return &cm, nil
+}
+
+func (repo PgCrewMemberRepository) FindAllByIds(ids []int64) ([]*model.CrewMember, error) {
+	var members []*model.CrewMember
+	stmt, err := repo.conn.Prepare("SELECT id, person_id, crew_rank FROM crew_member WHERE id = $1")
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	for _, id := range ids {
+		fmt.Printf("looking up crew member %d\n", id)
+		var member model.CrewMember
+		err := stmt.QueryRow(id).Scan(&member.Id, &member.PersonId, &member.CrewRankId)
+		if err != nil {
+			return nil, repository.NewNotFoundError(id)
+		}
+		members = append(members, &member)
+	}
+
+	return members, nil
 }
 
 func (repo PgCrewMemberRepository) Save(cm *model.CrewMember) error {
