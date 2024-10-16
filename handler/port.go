@@ -70,8 +70,8 @@ func DeletePort(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func preparePortResponse(p model.Port) dto.PortResponse {
-	return dto.PortResponse{
+func preparePortResponse(p model.Port) dto.PortDetailsResponse {
+	return dto.PortDetailsResponse{
 		Id:       p.Id,
 		Location: p.Location,
 	}

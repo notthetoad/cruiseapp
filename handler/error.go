@@ -31,28 +31,33 @@ func NewBadRequestError(invalidField string) error {
 	}
 }
 
-// TODO refactor
-// TODO bad request error response
 func HandleError(err error, w http.ResponseWriter) {
-	var errResp dto.ErrorResponse
-	var notFoundErr *repository.NotFoundError
-	var actionForbiddenErr *repository.ForbiddenActionError
-	var badRequestErr *BadRequestError
-	if errors.As(err, &notFoundErr) {
+	var (
+		errResp            dto.ErrorResponse
+		errNotFound        *repository.NotFoundError
+		errActionForbidden *repository.ForbiddenActionError
+		errBadRequest      *BadRequestError
+	)
+
+	if errors.As(err, &errNotFound) {
 		w.WriteHeader(http.StatusNotFound)
-		errResp.Msg = notFoundErr.Error()
+		errResp.Msg = errNotFound.Error()
 		_ = json.NewEncoder(w).Encode(&errResp)
-	} else if errors.As(err, &actionForbiddenErr) {
+		return
+	}
+	if errors.As(err, &errActionForbidden) {
 		w.WriteHeader(http.StatusForbidden)
-		errResp.Msg = actionForbiddenErr.Error()
-		errResp.Details = actionForbiddenErr.Details
+		errResp.Msg = errActionForbidden.Error()
+		errResp.Details = errActionForbidden.Details
 		_ = json.NewEncoder(w).Encode(&errResp)
-	} else if errors.As(err, &badRequestErr) {
+		return
+	}
+	if errors.As(err, &errBadRequest) {
 		w.WriteHeader(http.StatusBadRequest)
 		errResp.Msg = "Bad request"
-		errResp.Details = badRequestErr.InvalidField
+		errResp.Details = errBadRequest.InvalidField
 		_ = json.NewEncoder(w).Encode(&errResp)
-	} else {
-		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
+	w.WriteHeader(http.StatusInternalServerError)
 }

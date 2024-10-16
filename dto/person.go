@@ -9,7 +9,7 @@ type CreatePersonRequest struct {
 
 type UpdatePersonRequest CreatePersonRequest
 
-type PersonResponse struct {
+type PersonDetailsResponse struct {
 	Id        int64
 	FirstName string
 	LastName  string
