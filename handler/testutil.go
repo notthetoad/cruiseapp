@@ -34,7 +34,7 @@ func (factory MockRepoFactory) CreateCrewRankRepo() crew.CrewRankRepository {
 
 func (factory MockRepoFactory) CreateCrewMemberRepo() crew.CrewMemberRepository {
 
-	return nil
+	return MockCrewMemberRepository{}
 }
 
 func (factory MockRepoFactory) CreatePersonRepo() person.PersonRepository {
@@ -44,11 +44,10 @@ func (factory MockRepoFactory) CreatePersonRepo() person.PersonRepository {
 
 func (factory MockRepoFactory) CreateCruiseRepo() cruise.CruiseRepository {
 
-	return nil
+	return MockCruiseRepository{}
 }
 
-type MockPortRepository struct {
-}
+type MockPortRepository struct{}
 
 func (repo MockPortRepository) FindById(id int64) (*model.Port, error) {
 	var p model.Port
@@ -65,5 +64,50 @@ func (repo MockPortRepository) Update(port *model.Port) error {
 }
 
 func (repo MockPortRepository) Delete(id int64) error {
+	return nil
+}
+
+type MockCruiseRepository struct{}
+
+func (repo MockCruiseRepository) FindById(id int64) (*model.Cruise, error) {
+	var c model.Cruise
+	return &c, nil
+}
+
+func (repo MockCruiseRepository) Save(cruise *model.Cruise) error {
+	cruise.Id = 1
+	return nil
+}
+
+func (repo MockCruiseRepository) Update(cruise *model.Cruise) error {
+	return nil
+}
+
+func (repo MockCruiseRepository) Delete(id int64) error {
+	return nil
+}
+
+type MockCrewMemberRepository struct{}
+
+func (repo MockCrewMemberRepository) FindById(id int64) (*model.CrewMember, error) {
+	var cm model.CrewMember
+	return &cm, nil
+}
+
+func (repo MockCrewMemberRepository) FindAllByIds(ids []int64) ([]*model.CrewMember, error) {
+	var cm []*model.CrewMember
+	return cm, nil
+}
+
+func (repo MockCrewMemberRepository) Save(cm *model.CrewMember) error {
+	cm.Id = 1
+	return nil
+}
+
+func (repo MockCrewMemberRepository) Update(cruise *model.CrewMember) error {
+	return nil
+}
+
+func (repo MockCrewMemberRepository) Delete(id int64) error {
 	return nil
 }

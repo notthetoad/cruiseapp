@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"bytes"
 	"context"
 	"cruiseapp/repository/factory"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -43,7 +43,7 @@ func TestGetPort(t *testing.T) {
 func TestPostPort(t *testing.T) {
 	rr, ctx := setup()
 	body := `{"Location": "fooland"}`
-	reader := bytes.NewReader([]byte(body))
+	reader := strings.NewReader(body)
 	req := httptest.NewRequestWithContext(ctx, http.MethodPost, "/port", reader)
 
 	CreatePort(rr, req)
