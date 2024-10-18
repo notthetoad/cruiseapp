@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"cruiseapp/repository/factory"
 	"fmt"
@@ -23,8 +24,7 @@ func ctxWithMockRepoFactory(ctx context.Context) context.Context {
 }
 
 func TestGetPort(t *testing.T) {
-	rr := httptest.NewRecorder()
-	ctx := ctxWithMockRepoFactory(context.Background())
+	rr, ctx := setup()
 	req := httptest.NewRequestWithContext(ctx, http.MethodGet, "/port/1", nil)
 	req.SetPathValue("id", "1")
 
@@ -33,9 +33,31 @@ func TestGetPort(t *testing.T) {
 	res := rr.Result()
 
 	if res.StatusCode != 200 {
-		t.Errorf("expected 200 got %d", res.StatusCode)
+		t.Errorf("Expected 200, Got %d", res.StatusCode)
 	}
 
 	out, _ := io.ReadAll(rr.Body)
 	fmt.Println(string(out))
+}
+
+func TestPostPort(t *testing.T) {
+	rr, ctx := setup()
+	body := `{"Location": "fooland"}`
+	reader := bytes.NewReader([]byte(body))
+	req := httptest.NewRequestWithContext(ctx, http.MethodPost, "/port", reader)
+
+	CreatePort(rr, req)
+
+	res := rr.Result()
+
+	if res.StatusCode != 201 {
+		t.Errorf("Expected 201, Got %d", res.StatusCode)
+	}
+}
+
+func setup() (*httptest.ResponseRecorder, context.Context) {
+	rr := httptest.NewRecorder()
+	ctx := ctxWithMockRepoFactory(context.Background())
+
+	return rr, ctx
 }
