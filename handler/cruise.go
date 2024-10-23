@@ -15,7 +15,6 @@ func CreateCruise(w http.ResponseWriter, r *http.Request) {
 	var req dto.CreateCruiseRequest
 	_ = json.NewDecoder(r.Body).Decode(&req)
 	var c model.Cruise
-
 	portRepo := factory.GetRepoFactory(r).CreatePortRepo()
 	fromLocation, err := portRepo.FindById(req.FromLocationId)
 	if err != nil {
@@ -24,7 +23,6 @@ func CreateCruise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.FromLocation = *fromLocation
-
 	toLocation, err := portRepo.FindById(req.ToLocationId)
 	if err != nil {
 		validateFK(&err, "ToLocation")
