@@ -34,12 +34,21 @@ func CreateCruise(w http.ResponseWriter, r *http.Request) {
 	crewRepo := factory.GetRepoFactory(r).CreateCrewMemberRepo()
 	var crew []*model.CrewMember
 	crew, err = crewRepo.FindAllByIds(req.CrewMembersIds)
+	if err != nil {
+		HandleError(err, w)
+		return
+	}
 	c.Crew = crew
 
 	repo := factory.GetRepoFactory(r).CreateCruiseRepo()
 	c.StartDate = req.StartDate
 	c.EndDate = req.EndDate
 	err = repo.Save(&c)
+	if err != nil {
+		HandleError(err, w)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(&c)
 }
 
