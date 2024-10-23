@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetCruise(t *testing.T) {
-	rr, ctx := setup()
+	rr, ctx := setupRecorderAndCtx()
 	req := httptest.NewRequestWithContext(ctx, http.MethodGet, "/cruise/1", nil)
 	req.SetPathValue("id", "1")
 
@@ -22,7 +22,7 @@ func TestGetCruise(t *testing.T) {
 }
 
 func TestPostCruise(t *testing.T) {
-	rr, ctx := setup()
+	rr, ctx := setupRecorderAndCtx()
 	body := `
 {
     "EndDate": "2025-01-01T00:00:00Z",
@@ -47,7 +47,7 @@ func TestPostCruise(t *testing.T) {
 }
 
 func TestUpdateCruise(t *testing.T) {
-	rr, ctx := setup()
+	rr, ctx := setupRecorderAndCtx()
 	body := `
 {
     "EndDate": "2025-01-01T00:00:00Z",

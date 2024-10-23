@@ -1,13 +1,28 @@
 package handler
 
 import (
+	"context"
 	"cruiseapp/model"
 	"cruiseapp/repository/crew"
 	"cruiseapp/repository/cruise"
+	"cruiseapp/repository/factory"
 	"cruiseapp/repository/person"
 	"cruiseapp/repository/port"
 	"cruiseapp/repository/ship"
+	"net/http/httptest"
 )
+
+func setupRecorderAndCtx() (*httptest.ResponseRecorder, context.Context) {
+	rr := httptest.NewRecorder()
+	ctx := ctxWithMockRepoFactory(context.Background())
+
+	return rr, ctx
+}
+
+func ctxWithMockRepoFactory(ctx context.Context) context.Context {
+	var repoFactory factory.RepoFactory = MockRepoFactory{}
+	return factory.CtxWithRepoFactory(ctx, repoFactory)
+}
 
 type MockRepoFactory struct {
 }
