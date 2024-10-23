@@ -28,7 +28,7 @@ func RetrieveCrewRank(w http.ResponseWriter, r *http.Request) {
 	var cr *model.CrewRank
 	id := util.ParseIdFromRequest(r)
 	crf := factory.GetRepoFactory(r).CreateCrewRankRepo()
-	cr, err := crf.FindById(int64(id))
+	cr, err := crf.FindById(id)
 	if err != nil {
 		HandleError(err, w)
 		return
@@ -106,7 +106,8 @@ func RetrieveCrewMember(w http.ResponseWriter, r *http.Request) {
 		HandleError(err, w)
 		return
 	}
-	resp := prepareCrewMemberDetailsResp(*cm, *cr)
+	p, err := factory.GetRepoFactory(r).CreatePersonRepo().FindById(cm.PersonId)
+	resp := prepareCrewMemberDetailsResp(*cm, *cr, *p)
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(&resp)
 	if err != nil {
@@ -147,9 +148,10 @@ func DeleteCrewMember(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO add Person field
-func prepareCrewMemberDetailsResp(cm model.CrewMember, cr model.CrewRank) dto.CrewMemberResponse {
+func prepareCrewMemberDetailsResp(cm model.CrewMember, cr model.CrewRank, p model.Person) dto.CrewMemberResponse {
 	return dto.CrewMemberResponse{
 		Id:       cm.Id,
 		CrewRank: cr,
+		Person:   p,
 	}
 }
