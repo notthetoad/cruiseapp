@@ -34,7 +34,7 @@ func CreatePerson(w http.ResponseWriter, r *http.Request) {
 
 func RetrievePerson(w http.ResponseWriter, r *http.Request) {
 	id := util.ParseIdFromRequest(r)
-	var p dto.PersonResponse
+	var p dto.PersonDetailsResponse
 	repo := factory.GetRepoFactory(r).CreatePersonRepo()
 	resp, err := repo.FindById(id)
 	if err != nil {
@@ -79,8 +79,8 @@ func DeletePerson(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func preparePersonDetails(p model.Person) dto.PersonResponse {
-	return dto.PersonResponse{
+func preparePersonDetails(p model.Person) dto.PersonDetailsResponse {
+	return dto.PersonDetailsResponse{
 		Id:        p.Id,
 		FirstName: p.FirstName,
 		LastName:  p.LastName,

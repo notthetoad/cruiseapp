@@ -119,7 +119,7 @@ func (repo PgShipRepository) Update(ship *model.Ship) error {
 		return repository.NewNotFoundError(ship.Id)
 	}
 
-	return err
+	return nil
 }
 
 func (repo PgShipRepository) Delete(id int64) error {

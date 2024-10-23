@@ -1,7 +1,9 @@
 package factory
 
 import (
+	"context"
 	"cruiseapp/repository/crew"
+	"cruiseapp/repository/cruise"
 	"cruiseapp/repository/person"
 	"cruiseapp/repository/port"
 	"cruiseapp/repository/ship"
@@ -18,6 +20,7 @@ type RepoFactory interface {
 	CreateCrewRankRepo() crew.CrewRankRepository
 	CreateCrewMemberRepo() crew.CrewMemberRepository
 	CreatePersonRepo() person.PersonRepository
+	CreateCruiseRepo() cruise.CruiseRepository
 }
 
 type PgRepoFactory struct {
@@ -58,6 +61,16 @@ func (factory PgRepoFactory) CreatePersonRepo() person.PersonRepository {
 	repo := person.NewPgPersonRepository(factory.Conn)
 
 	return repo
+}
+
+func (factory PgRepoFactory) CreateCruiseRepo() cruise.CruiseRepository {
+	repo := cruise.NewPgCruiseRepository(factory.Conn)
+
+	return repo
+}
+
+func CtxWithRepoFactory(ctx context.Context, factory RepoFactory) context.Context {
+	return context.WithValue(ctx, MIDDLEWARE_CTX_KEY, factory)
 }
 
 func GetRepoFactory(r *http.Request) RepoFactory {
