@@ -3,7 +3,10 @@ package server
 import (
 	"cruiseapp/handler"
 	m "cruiseapp/server/middleware"
+	"log"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 func NewServer() http.Server {
@@ -53,6 +56,32 @@ func Router() *http.ServeMux {
 
 	router.HandleFunc("GET /foo", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("bar"))
+	})
+
+	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("ws connect")
+		var upgrader = websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+		}
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		nw, err := conn.NextWriter(websocket.TextMessage)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		_, err = nw.Write([]byte("Hello World"))
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		nw.Close()
+
 	})
 
 	return router
