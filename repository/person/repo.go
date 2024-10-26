@@ -4,10 +4,12 @@ import (
 	"cruiseapp/model"
 	"cruiseapp/repository"
 	"database/sql"
+	"fmt"
 )
 
 type PersonRepository interface {
 	FindById(id int64) (*model.Person, error)
+	FindAllByIds(ids []int64) ([]*model.Person, error)
 	Save(p *model.Person) error
 	Update(p *model.Person) error
 	Delete(id int64) error
@@ -31,6 +33,26 @@ func (repo PgPersonRepository) FindById(id int64) (*model.Person, error) {
 	}
 
 	return &p, nil
+}
+
+func (repo PgPersonRepository) FindAllByIds(ids []int64) ([]*model.Person, error) {
+	var people []*model.Person
+	stmt, err := repo.conn.Prepare("SELECT id, first_name, last_name, email, phone FROM person WHERE id = $1")
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	for _, id := range ids {
+		fmt.Printf("looking up person %d\n", id)
+		var p model.Person
+		err := stmt.QueryRow(id).Scan(&p.Id, &p.FirstName, &p.LastName, &p.Email, &p.Phone)
+		if err != nil {
+			return nil, repository.NewNotFoundError(id)
+		}
+		people = append(people, &p)
+	}
+
+	return people, nil
 }
 
 func (repo PgPersonRepository) Save(p *model.Person) error {

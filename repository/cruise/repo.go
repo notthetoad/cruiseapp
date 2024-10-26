@@ -38,7 +38,15 @@ func (repo PgCruiseRepository) FindById(id int64) (*model.Cruise, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := repo.conn.Query("SELECT id, person_id, crew_rank FROM crew_member cm JOIN cruise_crew_member ccm ON cm.id = ccm.crew_member_id WHERE ccm.cruise_id = $1", id)
+	stmt := `
+	SELECT id, person_id, crew_rank
+          FROM crew_member cm
+	  JOIN cruise_crew_member ccm
+	    ON cm.id = ccm.crew_member_id
+	  JOIN cruise_person cp
+	    ON cm.id = cp.person_id
+	 WHERE ccm.cruise_id = $1`
+	rows, err := repo.conn.Query(stmt, id)
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +72,13 @@ func (repo PgCruiseRepository) Save(c *model.Cruise) error {
 
 	for _, crewMember := range c.Crew {
 		_, err := repo.conn.Exec(`INSERT INTO cruise_crew_member (cruise_id, crew_member_id) VALUES ($1, $2)`, c.Id, crewMember.Id)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, passenger := range c.Passengers {
+		_, err := repo.conn.Exec(`INSERT INTO cruise_person (cruise_id, person_id) VALUES ($1, $2)`, c.Id, passenger.Id)
 		if err != nil {
 			return err
 		}

@@ -12,6 +12,7 @@ type CreateCruiseRequest struct {
 	FromLocationId int64   `json:"FromLocation"`
 	ToLocationId   int64   `json:"ToLocation"`
 	CrewMembersIds []int64 `json:"CrewMembers"`
+	PassengersIds  []int64 `json:"Passengers"`
 }
 
 type CruiseDetailsResponse struct {
@@ -22,4 +23,5 @@ type CruiseDetailsResponse struct {
 	FromLocation model.Port
 	ToLocation   model.Port
 	CrewMembers  []*model.CrewMember
+	Passengers   []*model.Person
 }
