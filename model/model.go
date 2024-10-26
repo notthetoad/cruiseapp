@@ -45,4 +45,5 @@ type Cruise struct {
 	FromLocation Port
 	ToLocation   Port
 	Crew         []*CrewMember
+	Passengers   []*Person
 }

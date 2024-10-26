@@ -40,6 +40,15 @@ func CreateCruise(w http.ResponseWriter, r *http.Request) {
 	}
 	c.Crew = crew
 
+	personRepo := factory.GetRepoFactory(r).CreatePersonRepo()
+	var passengers []*model.Person
+	passengers, err = personRepo.FindAllByIds(req.PassengersIds)
+	if err != nil {
+		HandleError(err, w)
+		return
+	}
+	c.Passengers = passengers
+
 	repo := factory.GetRepoFactory(r).CreateCruiseRepo()
 	c.StartDate = req.StartDate
 	c.EndDate = req.EndDate
