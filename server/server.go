@@ -3,20 +3,11 @@ package server
 import (
 	"cruiseapp/handler"
 	m "cruiseapp/server/middleware"
-	"log"
+	"cruiseapp/ws"
 	"net/http"
-
-	"github.com/gorilla/websocket"
 )
 
 func NewServer() http.Server {
-	return http.Server{
-		Addr:    ":8080",
-		Handler: m.WrapMiddleware(Router()),
-	}
-}
-
-func Router() *http.ServeMux {
 	router := http.NewServeMux()
 
 	router.HandleFunc("POST /port", handler.CreatePort)
@@ -58,31 +49,21 @@ func Router() *http.ServeMux {
 		w.Write([]byte("bar"))
 	})
 
-	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("ws connect")
-		var upgrader = websocket.Upgrader{
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
-		}
-		conn, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			log.Println(err)
-			return
-		}
+	hub := ws.NewHub()
+	go hub.Run()
 
-		nw, err := conn.NextWriter(websocket.TextMessage)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		_, err = nw.Write([]byte("Hello World"))
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		nw.Close()
-
+	router.HandleFunc("GET /ws", func(w http.ResponseWriter, r *http.Request) {
+		ws.ServeWs(w, r, hub)
 	})
 
-	return router
+	handler := m.ChainMiddleware(
+		m.DbMiddleware,
+		m.PgRepoFactoryMiddleware,
+		ws.WsHubMiddleware(hub),
+	)(router)
+
+	return http.Server{
+		Addr:    ":8080",
+		Handler: handler,
+	}
 }
