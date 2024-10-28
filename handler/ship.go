@@ -5,6 +5,7 @@ import (
 	"cruiseapp/handler/util"
 	"cruiseapp/model"
 	"cruiseapp/repository/factory"
+	"cruiseapp/ws"
 	"encoding/json"
 	"net/http"
 )
@@ -26,6 +27,7 @@ func CreateShipModel(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(sm); err != nil {
 		HandleError(err, w)
 	}
+	ws.SendCreatedMsg(r, "ship model", sm.Id)
 }
 
 func RetrieveShipModel(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +58,7 @@ func UpdateShipModel(w http.ResponseWriter, r *http.Request) {
 	sm.Name = req.Name
 	repo.Update(&sm)
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendUpdatedMsg(r, "ship model", sm.Id)
 }
 
 func DeleteShipModel(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +70,7 @@ func DeleteShipModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendDeletedMsg(r, "ship model", id)
 }
 
 // TODO validate if request fields not empty
@@ -99,6 +103,7 @@ func CreateShip(w http.ResponseWriter, r *http.Request) {
 	if err = json.NewEncoder(w).Encode(&resp); err != nil {
 		HandleError(err, w)
 	}
+	ws.SendCreatedMsg(r, "ship", s.Id)
 }
 
 func RetrieveShip(w http.ResponseWriter, r *http.Request) {
@@ -143,6 +148,7 @@ func UpdateShip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendUpdatedMsg(r, "ship", s.Id)
 }
 
 func DeleteShip(w http.ResponseWriter, r *http.Request) {
@@ -154,6 +160,7 @@ func DeleteShip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendDeletedMsg(r, "ship model", id)
 }
 
 func prepareShipDetailsResp(s model.Ship, sm model.ShipModel) dto.ShipDetailsResponse {

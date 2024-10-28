@@ -5,6 +5,7 @@ import (
 	"cruiseapp/handler/util"
 	"cruiseapp/model"
 	"cruiseapp/repository/factory"
+	"cruiseapp/ws"
 	"encoding/json"
 	"net/http"
 )
@@ -29,7 +30,7 @@ func CreatePerson(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(&p)
-
+	ws.SendCreatedMsg(r, "person", p.Id)
 }
 
 func RetrievePerson(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +68,7 @@ func UpdatePerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendUpdatedMsg(r, "person", p.Id)
 }
 
 func DeletePerson(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +79,7 @@ func DeletePerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendDeletedMsg(r, "person", id)
 }
 
 func preparePersonDetails(p model.Person) dto.PersonDetailsResponse {
