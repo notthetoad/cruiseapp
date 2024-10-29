@@ -15,6 +15,8 @@ import (
 func setupRecorderAndCtx() (*httptest.ResponseRecorder, context.Context) {
 	rr := httptest.NewRecorder()
 	ctx := ctxWithMockRepoFactory(context.Background())
+	// hub := MockHub{}
+	// nCtx := context.WithValue(ctx, ws.WS_HUB_CTX_KEY, hub)
 
 	return rr, ctx
 }
@@ -54,7 +56,7 @@ func (factory MockRepoFactory) CreateCrewMemberRepo() crew.CrewMemberRepository 
 
 func (factory MockRepoFactory) CreatePersonRepo() person.PersonRepository {
 
-	return nil
+	return MockPersonRepository{}
 }
 
 func (factory MockRepoFactory) CreateCruiseRepo() cruise.CruiseRepository {
@@ -126,3 +128,32 @@ func (repo MockCrewMemberRepository) Update(cruise *model.CrewMember) error {
 func (repo MockCrewMemberRepository) Delete(id int64) error {
 	return nil
 }
+
+type MockPersonRepository struct{}
+
+func (repo MockPersonRepository) FindById(id int64) (*model.Person, error) {
+	var p model.Person
+	return &p, nil
+}
+
+func (repo MockPersonRepository) FindAllByIds(ids []int64) ([]*model.Person, error) {
+	var p []*model.Person
+	return p, nil
+}
+
+func (repo MockPersonRepository) Save(p *model.Person) error {
+	p.Id = 1
+	return nil
+}
+
+func (repo MockPersonRepository) Update(p *model.Person) error {
+	return nil
+}
+
+func (repo MockPersonRepository) Delete(id int64) error {
+	return nil
+}
+
+type MockHub struct{}
+
+func (mh *MockHub) Run() {}

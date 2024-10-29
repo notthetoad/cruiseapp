@@ -13,7 +13,6 @@ func TestGetCruise(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	RetrieveCruise(rr, req)
-
 	res := rr.Result()
 
 	if res.StatusCode != 200 {
@@ -25,20 +24,23 @@ func TestPostCruise(t *testing.T) {
 	rr, ctx := setupRecorderAndCtx()
 	body := `
 {
-    "EndDate": "2025-01-01T00:00:00Z",
+    "EndDate": "2024-02-10T00:00:00Z",
     "StartDate": "2024-01-01T00:00:00Z",
-    "CrewMembers": [
+    "crewmembers": [
         16,
         28
     ],
-    "FromLocation": 2,
-    "ToLocation": 2
+    "fromlocation": 2,
+    "passengers": [
+        1,
+        2
+    ],
+    "tolocation": 2
 }`
 	reader := strings.NewReader(body)
 	req := httptest.NewRequestWithContext(ctx, http.MethodPost, "/cruise", reader)
 
 	CreateCruise(rr, req)
-
 	res := rr.Result()
 
 	if res.StatusCode != 201 {
@@ -64,10 +66,23 @@ func TestUpdateCruise(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	UpdateCruise(rr, req)
-
 	res := rr.Result()
 
 	if res.StatusCode != 204 {
 		t.Errorf("Expected 204, Got %d", res.StatusCode)
 	}
+}
+
+func TestDeleteCruise(t *testing.T) {
+	rr, ctx := setupRecorderAndCtx()
+	req := httptest.NewRequestWithContext(ctx, http.MethodDelete, "/cruise/1", nil)
+	req.SetPathValue("id", "1")
+
+	DeleteCruise(rr, req)
+	res := rr.Result()
+
+	if res.StatusCode != 204 {
+		t.Errorf("Expected 204, Got %d", res.StatusCode)
+	}
+
 }
