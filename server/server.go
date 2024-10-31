@@ -1,10 +1,13 @@
 package server
 
 import (
+	dm "cruiseapp/database/middleware"
 	"cruiseapp/handler"
+	fm "cruiseapp/repository/factory/middleware"
 	m "cruiseapp/server/middleware"
 	"cruiseapp/ws"
 	"net/http"
+	"time"
 )
 
 func NewServer() http.Server {
@@ -45,25 +48,19 @@ func NewServer() http.Server {
 	router.HandleFunc("PUT /cruise/{id}", handler.UpdateCruise)
 	router.HandleFunc("DELETE /cruise/{id}", handler.DeleteCruise)
 
-	router.HandleFunc("GET /foo", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("bar"))
-	})
-
 	hub := ws.NewHub()
 	go hub.Run()
 
-	router.HandleFunc("GET /ws", func(w http.ResponseWriter, r *http.Request) {
-		ws.ServeWs(w, r, hub)
-	})
-
 	handler := m.ChainMiddleware(
-		m.DbMiddleware,
-		m.PgRepoFactoryMiddleware,
+		dm.DbMiddleware,
+		fm.PgRepoFactoryMiddleware,
 		ws.WsHubMiddleware(hub),
 	)(router)
 
 	return http.Server{
-		Addr:    ":8080",
-		Handler: handler,
+		Addr:         ":8080",
+		Handler:      handler,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
 	}
 }

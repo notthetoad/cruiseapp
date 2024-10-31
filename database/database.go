@@ -5,9 +5,28 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
+}
+
+func GetConfig() DbConfig {
+	return DbConfig{
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DbName:   os.Getenv("DB_NAME"),
+		SslMode:  os.Getenv("DB_SSL_MODE"),
+	}
+}
 
 const DB_CONNECTION_CTX_KEY = "foobar"
 
