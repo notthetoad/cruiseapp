@@ -5,6 +5,7 @@ import (
 	"cruiseapp/handler/util"
 	"cruiseapp/model"
 	"cruiseapp/repository/factory"
+	"cruiseapp/ws"
 	"encoding/json"
 	"net/http"
 )
@@ -22,6 +23,7 @@ func CreateCrewRank(w http.ResponseWriter, r *http.Request) {
 	repo.Save(&cr)
 	w.WriteHeader(http.StatusFound)
 	_ = json.NewEncoder(w).Encode(&cr)
+	ws.SendCreatedMsg(r, "crew rank", cr.Id)
 }
 
 func RetrieveCrewRank(w http.ResponseWriter, r *http.Request) {
@@ -60,6 +62,7 @@ func UpdateCrewRank(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendUpdatedMsg(r, "crew rank", cr.Id)
 }
 
 func DeleteCrewRank(w http.ResponseWriter, r *http.Request) {
@@ -71,6 +74,7 @@ func DeleteCrewRank(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendDeletedMsg(r, "crew rank", id)
 }
 
 func CreateCrewMember(w http.ResponseWriter, r *http.Request) {
@@ -91,6 +95,7 @@ func CreateCrewMember(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusFound)
 	_ = json.NewEncoder(w).Encode(&cm)
+	ws.SendCreatedMsg(r, "crew member", cm.Id)
 }
 
 func RetrieveCrewMember(w http.ResponseWriter, r *http.Request) {
@@ -134,6 +139,7 @@ func UpdateCrewMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendUpdatedMsg(r, "crew member", cm.Id)
 }
 
 func DeleteCrewMember(w http.ResponseWriter, r *http.Request) {
@@ -145,6 +151,7 @@ func DeleteCrewMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendDeletedMsg(r, "crew member", id)
 }
 
 // TODO add Person field

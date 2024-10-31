@@ -6,6 +6,7 @@ import (
 	"cruiseapp/model"
 	"cruiseapp/repository"
 	"cruiseapp/repository/factory"
+	"cruiseapp/ws"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -59,6 +60,7 @@ func CreateCruise(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(&c)
+	ws.SendCreatedMsg(r, "cruise", c.Id)
 }
 
 func RetrieveCruise(w http.ResponseWriter, r *http.Request) {
@@ -95,6 +97,7 @@ func UpdateCruise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendUpdatedMsg(r, "cruise", c.Id)
 }
 
 func DeleteCruise(w http.ResponseWriter, r *http.Request) {
@@ -107,6 +110,7 @@ func DeleteCruise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendDeletedMsg(r, "cruise", id)
 }
 
 func prepareCruiseDetailsResponse(c model.Cruise) dto.CruiseDetailsResponse {

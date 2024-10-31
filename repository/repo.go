@@ -24,7 +24,6 @@ type ForbiddenActionError struct {
 
 func (e *ForbiddenActionError) Error() string {
 	return fmt.Sprintf("Action forbidden: trying to %s object with id: %d", e.Action, e.Id)
-	// return fmt.Sprintf("Action forbidden: trying to %s object with id %d %s", e.Action, e.Id, e.Details)
 }
 
 func (e *ForbiddenActionError) WithDetails(details string) *ForbiddenActionError {

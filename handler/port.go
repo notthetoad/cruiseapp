@@ -5,6 +5,7 @@ import (
 	"cruiseapp/handler/util"
 	"cruiseapp/model"
 	"cruiseapp/repository/factory"
+	"cruiseapp/ws"
 	"encoding/json"
 	"net/http"
 )
@@ -23,6 +24,7 @@ func CreatePort(w http.ResponseWriter, r *http.Request) {
 	repo.Save(&p)
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(&p)
+	ws.SendCreatedMsg(r, "port", p.Id)
 }
 
 func RetrievePort(w http.ResponseWriter, r *http.Request) {
@@ -57,6 +59,7 @@ func UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendUpdatedMsg(r, "port", p.Id)
 }
 
 func DeletePort(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +71,7 @@ func DeletePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	ws.SendDeletedMsg(r, "port", id)
 }
 
 func preparePortResponse(p model.Port) dto.PortDetailsResponse {
