@@ -17,7 +17,7 @@ func init() {
 	}
 }
 
-func GetConfig() DbConfig {
+func LoadConfig() DbConfig {
 	return DbConfig{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
@@ -28,7 +28,11 @@ func GetConfig() DbConfig {
 	}
 }
 
-const DB_CONNECTION_CTX_KEY = "foobar"
+const DB_CONNECTION_CTX_KEY = "DB_CONN_CTX_KEY"
+
+type Databaser interface {
+	Open() *sql.DB
+}
 
 type DbConfig struct {
 	Host     string
@@ -39,17 +43,21 @@ type DbConfig struct {
 	SslMode  string
 }
 
-type DbHandler struct {
+type PgHandler struct {
 	Config DbConfig
 }
 
-func (dh *DbHandler) Open() *sql.DB {
+func (dh *PgHandler) Open() *sql.DB {
 	cfg := dh.Config
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DbName, cfg.SslMode)
 
 	conn, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatalf("error connecting to db: %v", err)
+	}
+	err = conn.Ping()
+	if err != nil {
+		panic(err)
 	}
 
 	return conn
