@@ -17,7 +17,7 @@ func init() {
 	}
 }
 
-func GetConfig() DbConfig {
+func LoadConfig() DbConfig {
 	return DbConfig{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
@@ -43,15 +43,11 @@ type DbConfig struct {
 	SslMode  string
 }
 
-type DbConfiger interface {
-	LoadConfig() DbConfig
-}
-
-type DbHandler struct {
+type PgHandler struct {
 	Config DbConfig
 }
 
-func (dh *DbHandler) Open() *sql.DB {
+func (dh *PgHandler) Open() *sql.DB {
 	cfg := dh.Config
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DbName, cfg.SslMode)
 
@@ -65,29 +61,6 @@ func (dh *DbHandler) Open() *sql.DB {
 	}
 
 	return conn
-}
-
-type FooDbHandler struct {
-	Cfg DbConfig
-}
-
-func (f *FooDbHandler) Open() *sql.DB {
-	cfg := f.LoadConfig()
-	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DbName, cfg.SslMode)
-	conn, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Println(err)
-	}
-	err = conn.Ping()
-	if err != nil {
-		panic(err)
-	}
-	return conn
-}
-
-func (f *FooDbHandler) LoadConfig() DbConfig {
-	fmt.Println("Loading config")
-	return DbConfig{}
 }
 
 func GetDb(r *http.Request) *sql.DB {
