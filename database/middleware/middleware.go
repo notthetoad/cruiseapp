@@ -10,7 +10,7 @@ func DbMiddleware(next http.Handler) http.HandlerFunc {
 	cfg := database.GetConfig()
 
 	var dbHandler database.Databaser
-	// dbHandler = database.FooDbHandler{
+	// dbHandler = &database.FooDbHandler{
 	// 	Cfg: cfg,
 	// }
 
