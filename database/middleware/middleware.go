@@ -9,7 +9,12 @@ import (
 func DbMiddleware(next http.Handler) http.HandlerFunc {
 	cfg := database.GetConfig()
 
-	dbHandler := database.DbHandler{
+	var dbHandler database.Databaser
+	// dbHandler = database.FooDbHandler{
+	// 	Cfg: cfg,
+	// }
+
+	dbHandler = &database.DbHandler{
 		Config: cfg,
 	}
 

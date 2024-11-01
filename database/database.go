@@ -28,7 +28,11 @@ func GetConfig() DbConfig {
 	}
 }
 
-const DB_CONNECTION_CTX_KEY = "foobar"
+const DB_CONNECTION_CTX_KEY = "DB_CONN_CTX_KEY"
+
+type Databaser interface {
+	Open() *sql.DB
+}
 
 type DbConfig struct {
 	Host     string
@@ -37,6 +41,10 @@ type DbConfig struct {
 	Password string
 	DbName   string
 	SslMode  string
+}
+
+type DbConfiger interface {
+	LoadConfig() DbConfig
 }
 
 type DbHandler struct {
@@ -51,8 +59,35 @@ func (dh *DbHandler) Open() *sql.DB {
 	if err != nil {
 		log.Fatalf("error connecting to db: %v", err)
 	}
+	err = conn.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	return conn
+}
+
+type FooDbHandler struct {
+	Cfg DbConfig
+}
+
+func (f *FooDbHandler) Open() *sql.DB {
+	cfg := f.LoadConfig()
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DbName, cfg.SslMode)
+	conn, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Println(err)
+	}
+	err = conn.Ping()
+	if err != nil {
+		panic(err)
+	}
+	return conn
+}
+
+func (f *FooDbHandler) LoadConfig() DbConfig {
+	fmt.Println("Loading config")
+	return DbConfig{}
 }
 
 func GetDb(r *http.Request) *sql.DB {
