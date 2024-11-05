@@ -13,6 +13,18 @@ import (
 	"testing"
 )
 
+const (
+	ERR_STATUS_CODE = "Invalid status code"
+	ERR_LOCATION    = "Invalid Location field"
+	ERR_ID          = "Invalid id"
+	WANT            = "fooland"
+	UPDATED         = "updated"
+)
+
+func skipIntegragionTestMsg(method string) string {
+	return fmt.Sprintf("Skipping %s integration test", method)
+}
+
 func createTestServer() *httptest.Server {
 	return httptest.NewServer(wrapMiddleware(newRouter()))
 }
@@ -30,17 +42,16 @@ func prepBody(v any) (io.Reader, error) {
 }
 
 var currId int64
-var want = "fooland"
 
 func TestCreatePortIntegration(t *testing.T) {
 	if testing.Short() {
-		t.Skip("Skipping create integration test")
+		t.Skip(skipIntegragionTestMsg("CREATE"))
 	}
 	ts := createTestServer()
 	defer ts.Close()
 
 	req := dto.CreatePortRequest{
-		Location: want,
+		Location: WANT,
 	}
 	bodyReader, err := prepBody(req)
 	if err != nil {
@@ -56,21 +67,21 @@ func TestCreatePortIntegration(t *testing.T) {
 	_ = json.NewDecoder(res.Body).Decode(&port)
 	defer res.Body.Close()
 
-	if res.StatusCode != 201 {
-		t.Errorf("Expected 201, Got %d", res.StatusCode)
+	if res.StatusCode != http.StatusCreated {
+		t.Errorf("%s. Want %d, Got %d", ERR_STATUS_CODE, http.StatusCreated, res.StatusCode)
 	}
 	if !(port.Id > 0) {
 		t.Errorf("Id cannot be 0, Got: %d", port.Id)
 	}
-	if port.Location != want {
-		t.Errorf("Expected %s, Got %s", want, port.Location)
+	if port.Location != WANT {
+		t.Errorf("%s. Want %s, Got %s", ERR_LOCATION, WANT, port.Location)
 	}
 	currId = port.Id
 }
 
 func TestRetrievePortIntegration(t *testing.T) {
 	if testing.Short() {
-		t.Skip("Skipping retrieve integration test")
+		t.Skip(skipIntegragionTestMsg("RETRIEVE"))
 	}
 
 	ts := createTestServer()
@@ -89,24 +100,24 @@ func TestRetrievePortIntegration(t *testing.T) {
 	defer res.Body.Close()
 
 	if p.Id != currId {
-		t.Errorf("Incorrect id. Want %d, Got %d", currId, p.Id)
+		t.Errorf("%s. Want %d, Got %d", ERR_ID, currId, p.Id)
 	}
 
-	if p.Location != want {
-		t.Errorf("Retrieved port incorrect. Want %s, Got %s", want, p.Location)
+	if p.Location != WANT {
+		t.Errorf("%s. Want %s, Got %s", ERR_LOCATION, WANT, p.Location)
 	}
 }
 
 func TestUpdatePortIntegration(t *testing.T) {
 	if testing.Short() {
-		t.Skip("Skipping update integration test")
+		t.Skip(skipIntegragionTestMsg("UPDATE"))
 	}
 
 	ts := createTestServer()
 	defer ts.Close()
 
 	body := dto.CreatePortRequest{
-		Location: "updated",
+		Location: UPDATED,
 	}
 	bodyReader, err := prepBody(body)
 	if err != nil {
@@ -114,14 +125,43 @@ func TestUpdatePortIntegration(t *testing.T) {
 	}
 
 	id := strconv.Itoa(int(currId))
-	req := httptest.NewRequest(http.MethodPut, ts.URL+"/port/"+id, bodyReader)
-	// TODO finish test using the same methodology as in delete test
+	req, err := http.NewRequest(http.MethodPut, ts.URL+"/port/"+id, bodyReader)
+	if err != nil {
+		t.Error(err)
+	}
+	c := http.Client{}
+	res, err := c.Do(req)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if res.StatusCode != 204 {
+		t.Errorf("%s. Want %d, Got %d", ERR_STATUS_CODE, http.StatusNoContent, res.StatusCode)
+	}
+
+	var port model.Port
+	resp, err := http.Get(ts.URL + "/port/" + id)
+	if err != nil {
+		t.Error(err)
+	}
+	err = json.NewDecoder(resp.Body).Decode(&port)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if port.Id != currId {
+		t.Errorf("%s. Want %d, Got %d", ERR_ID, currId, port.Id)
+	}
+
+	if port.Location != UPDATED {
+		t.Errorf("%s. Want %s, Got %s", ERR_LOCATION, UPDATED, port.Location)
+	}
 
 }
 
 func TestDeletePortIntegration(t *testing.T) {
 	if testing.Short() {
-		t.Skip("Skipping delete integration test")
+		t.Skip(skipIntegragionTestMsg("DELETE"))
 	}
 
 	ts := createTestServer()
@@ -132,11 +172,14 @@ func TestDeletePortIntegration(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
 	c := http.Client{}
 	res, err := c.Do(req)
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println(res)
-	// TODO finish asserts
+
+	if res.StatusCode != http.StatusNoContent {
+		t.Errorf("%s. Want %d, Got %d", ERR_STATUS_CODE, http.StatusNoContent, res.StatusCode)
+	}
 }
