@@ -2,18 +2,14 @@ package handler
 
 import (
 	"cruiseapp/database"
+	"cruiseapp/dto"
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"time"
 )
 
-type statistics struct {
-	Year     int
-	Month    int
-	Count    int
-	AvgHours float64
-}
-
-const StatStmt = `
+const STATS_STMT = `
 SELECT extract(year from c.start_date) as year,
        extract(month from c.start_date) as month,
        count(*),
@@ -30,16 +26,16 @@ func StatisticsHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	year := query.Get("year")
 	if year == "" {
-		year = "2023"
+		year = strconv.Itoa(time.Now().Year())
 	}
-	res, err := db.Query(StatStmt, year)
+	res, err := db.Query(STATS_STMT, year)
 	if err != nil {
 		HandleError(err, w)
 		return
 	}
-	var results []statistics
+	var results []dto.Statistics
 	for res.Next() {
-		var s statistics
+		var s dto.Statistics
 		if err := res.Scan(
 			&s.Year,
 			&s.Month,
