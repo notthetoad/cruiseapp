@@ -48,6 +48,8 @@ func NewServer() http.Server {
 	router.HandleFunc("PUT /cruise/{id}", handler.UpdateCruise)
 	router.HandleFunc("DELETE /cruise/{id}", handler.DeleteCruise)
 
+	router.HandleFunc("GET /stats", handler.StatisticsHandler)
+
 	hub := ws.NewHub()
 	go hub.Run()
 
