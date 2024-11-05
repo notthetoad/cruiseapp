@@ -48,8 +48,21 @@ func newRouter() http.Handler {
 	router.HandleFunc("PUT /cruise/{id}", handler.UpdateCruise)
 	router.HandleFunc("DELETE /cruise/{id}", handler.DeleteCruise)
 
+<<<<<<< HEAD
 	return router
 }
+=======
+	router.HandleFunc("GET /stats", handler.StatisticsHandler)
+
+	hub := ws.NewHub()
+	go hub.Run()
+
+	handler := m.ChainMiddleware(
+		dm.DbMiddleware,
+		fm.PgRepoFactoryMiddleware,
+		ws.WsHubMiddleware(hub),
+	)(router)
+>>>>>>> devel
 
 func NewServer() http.Server {
 	router := newRouter()
