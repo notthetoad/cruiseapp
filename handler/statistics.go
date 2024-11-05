@@ -33,7 +33,7 @@ func StatisticsHandler(w http.ResponseWriter, r *http.Request) {
 		HandleError(err, w)
 		return
 	}
-	var results []dto.Statistics
+	var stats []dto.Statistics
 	for res.Next() {
 		var s dto.Statistics
 		if err := res.Scan(
@@ -45,10 +45,13 @@ func StatisticsHandler(w http.ResponseWriter, r *http.Request) {
 			HandleError(err, w)
 			return
 		}
-		results = append(results, s)
+		stats = append(stats, s)
+	}
+	result := dto.StatisticsData{
+		Data: stats,
 	}
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(&results)
+	err = json.NewEncoder(w).Encode(&result)
 	if err != nil {
 		HandleError(err, w)
 		return
