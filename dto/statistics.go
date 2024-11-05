@@ -7,6 +7,6 @@ type Statistics struct {
 	AvgHours float64
 }
 
-type StatisticsData struct {
+type StatisticsResponse struct {
 	Data []Statistics
 }

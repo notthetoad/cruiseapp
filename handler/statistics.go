@@ -47,7 +47,7 @@ func StatisticsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		stats = append(stats, s)
 	}
-	result := dto.StatisticsData{
+	result := dto.StatisticsResponse{
 		Data: stats,
 	}
 	w.WriteHeader(http.StatusOK)
