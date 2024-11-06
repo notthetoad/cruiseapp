@@ -113,8 +113,47 @@ func TestUpdatePortIntegration(t *testing.T) {
 		t.Skip(skipIntegragionTestMsg("UPDATE"))
 	}
 
+	tests := []struct {
+		loc     string
+		paramId string
+		want    int
+	}{
+		{"newLocation", "10", 204},
+		{"newLocation", "999", 404},
+	}
+
 	ts := createTestServer()
 	defer ts.Close()
+
+	var c http.Client
+
+	for _, tt := range tests {
+		testname := fmt.Sprintf("%v", tt)
+		t.Run(testname, func(t *testing.T) {
+			body := dto.CreatePortRequest{
+				Location: tt.loc,
+			}
+
+			bodyReader, err := prepBody(body)
+			if err != nil {
+				t.Error(err)
+			}
+			req, err := http.NewRequest(http.MethodPut, ts.URL+"/port/"+tt.paramId, bodyReader)
+			if err != nil {
+				t.Fatalf("cannot prepare http request: %v", err)
+			}
+
+			res, err := c.Do(req)
+			if err != nil {
+				t.Fatalf("client unable to send request: %v", err)
+			}
+
+			if res.StatusCode != tt.want {
+				t.Errorf("%s; want %d, got %d", ERR_STATUS_CODE, tt.want, res.StatusCode)
+			}
+		})
+
+	}
 
 	body := dto.CreatePortRequest{
 		Location: UPDATED,
@@ -129,7 +168,7 @@ func TestUpdatePortIntegration(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c := http.Client{}
+	c = http.Client{}
 	res, err := c.Do(req)
 	if err != nil {
 		t.Error(err)
