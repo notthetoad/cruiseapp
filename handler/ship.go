@@ -73,8 +73,6 @@ func DeleteShipModel(w http.ResponseWriter, r *http.Request) {
 	ws.SendDeletedMsg(r, "ship model", id)
 }
 
-// TODO validate if request fields not empty
-// TODO validate ship id
 func CreateShip(w http.ResponseWriter, r *http.Request) {
 	var req dto.CreateShipRequest
 
@@ -100,6 +98,7 @@ func CreateShip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp := prepareShipDetailsResp(s, *sm)
+	w.WriteHeader(http.StatusCreated)
 	if err = json.NewEncoder(w).Encode(&resp); err != nil {
 		HandleError(err, w)
 	}
@@ -121,6 +120,7 @@ func RetrieveShip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp := prepareShipDetailsResp(*s, *sm)
+	w.WriteHeader(http.StatusOK)
 	if err = json.NewEncoder(w).Encode(&resp); err != nil {
 		HandleError(err, w)
 	}

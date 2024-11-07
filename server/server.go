@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func NewServer() http.Server {
+func newRouter() http.Handler {
 	router := http.NewServeMux()
 
 	router.HandleFunc("POST /port", handler.CreatePort)
@@ -50,19 +50,26 @@ func NewServer() http.Server {
 
 	router.HandleFunc("GET /stats", handler.StatisticsHandler)
 
-	hub := ws.NewHub()
-	go hub.Run()
+	return router
+}
 
-	handler := m.ChainMiddleware(
-		dm.DbMiddleware,
-		fm.PgRepoFactoryMiddleware,
-		ws.WsHubMiddleware(hub),
-	)(router)
-
+func NewServer() http.Server {
+	router := newRouter()
 	return http.Server{
 		Addr:         ":8080",
-		Handler:      handler,
+		Handler:      wrapMiddleware(router),
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
+}
+
+func wrapMiddleware(handler http.Handler) http.Handler {
+	hub := ws.NewHub()
+	go hub.Run()
+
+	return m.ChainMiddleware(
+		dm.DbMiddleware,
+		fm.PgRepoFactoryMiddleware,
+		ws.WsHubMiddleware(hub),
+	)(handler)
 }

@@ -28,15 +28,17 @@ func StatisticsHandler(w http.ResponseWriter, r *http.Request) {
 	if year == "" {
 		year = strconv.Itoa(time.Now().Year())
 	}
-	res, err := db.Query(STATS_STMT, year)
+	rows, err := db.Query(STATS_STMT, year)
 	if err != nil {
 		HandleError(err, w)
 		return
 	}
+
 	var stats []dto.Statistics
-	for res.Next() {
+	defer rows.Close()
+	for rows.Next() {
 		var s dto.Statistics
-		if err := res.Scan(
+		if err := rows.Scan(
 			&s.Year,
 			&s.Month,
 			&s.Count,
