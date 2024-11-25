@@ -21,7 +21,7 @@ func LoadConfig() DbConfig {
 	}
 }
 
-const DB_CONNECTION_CTX_KEY = "DB_CONN_CTX_KEY"
+const DbConnectionCtxKey = "DB_CONN_CTX_KEY"
 
 type Databaser interface {
 	Open() *sql.DB
@@ -57,5 +57,5 @@ func (dh *PgHandler) Open() *sql.DB {
 }
 
 func GetDb(r *http.Request) *sql.DB {
-	return r.Context().Value(DB_CONNECTION_CTX_KEY).(*sql.DB)
+	return r.Context().Value(DbConnectionCtxKey).(*sql.DB)
 }

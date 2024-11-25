@@ -12,7 +12,7 @@ func PgRepoFactoryMiddleware(next http.Handler) http.HandlerFunc {
 		db := database.GetDb(r)
 		var factory fct.RepoFactory = fct.PgRepoFactory{Conn: db}
 
-		ctx := context.WithValue(r.Context(), fct.MIDDLEWARE_CTX_KEY, factory)
+		ctx := context.WithValue(r.Context(), fct.MiddlewareCtxKey, factory)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

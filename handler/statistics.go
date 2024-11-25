@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const STATS_STMT = `
+const StatsStmt = `
 SELECT extract(year from c.start_date) as year,
        extract(month from c.start_date) as month,
        count(*),
@@ -28,7 +28,7 @@ func StatisticsHandler(w http.ResponseWriter, r *http.Request) {
 	if year == "" {
 		year = strconv.Itoa(time.Now().Year())
 	}
-	rows, err := db.Query(STATS_STMT, year)
+	rows, err := db.Query(StatsStmt, year)
 	if err != nil {
 		HandleError(err, w)
 		return

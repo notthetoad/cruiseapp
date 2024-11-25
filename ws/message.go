@@ -7,7 +7,7 @@ import (
 )
 
 func sendMessage(r *http.Request, message string) {
-	hub, ok := r.Context().Value(WS_HUB_CTX_KEY).(*Hub)
+	hub, ok := r.Context().Value(WsHubCtxKey).(*Hub)
 	if !ok {
 		return
 	}

@@ -14,11 +14,11 @@ import (
 )
 
 const (
-	ERR_STATUS_CODE = "Invalid status code"
-	ERR_LOCATION    = "Invalid Location field"
-	ERR_ID          = "Invalid id"
-	WANT            = "fooland"
-	UPDATED         = "updated"
+	ErrStatusCode = "Invalid status code"
+	ErrLocation   = "Invalid Location field"
+	ErrID         = "Invalid id"
+	Want          = "fooland"
+	Updated       = "updated"
 )
 
 func skipIntegragionTestMsg(method string) string {
@@ -51,7 +51,7 @@ func TestCreatePortIntegration(t *testing.T) {
 	defer ts.Close()
 
 	req := dto.CreatePortRequest{
-		Location: WANT,
+		Location: Want,
 	}
 	bodyReader, err := prepBody(req)
 	if err != nil {
@@ -68,13 +68,13 @@ func TestCreatePortIntegration(t *testing.T) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusCreated {
-		t.Errorf("%s. Want %d, Got %d", ERR_STATUS_CODE, http.StatusCreated, res.StatusCode)
+		t.Errorf("%s. Want %d, Got %d", ErrStatusCode, http.StatusCreated, res.StatusCode)
 	}
 	if !(port.Id > 0) {
 		t.Errorf("Id cannot be 0, Got: %d", port.Id)
 	}
-	if port.Location != WANT {
-		t.Errorf("%s. Want %s, Got %s", ERR_LOCATION, WANT, port.Location)
+	if port.Location != Want {
+		t.Errorf("%s. Want %s, Got %s", ErrLocation, Want, port.Location)
 	}
 	currId = port.Id
 }
@@ -100,11 +100,11 @@ func TestRetrievePortIntegration(t *testing.T) {
 	defer res.Body.Close()
 
 	if p.Id != currId {
-		t.Errorf("%s. Want %d, Got %d", ERR_ID, currId, p.Id)
+		t.Errorf("%s. Want %d, Got %d", ErrID, currId, p.Id)
 	}
 
-	if p.Location != WANT {
-		t.Errorf("%s. Want %s, Got %s", ERR_LOCATION, WANT, p.Location)
+	if p.Location != Want {
+		t.Errorf("%s. Want %s, Got %s", ErrLocation, Want, p.Location)
 	}
 }
 
@@ -149,14 +149,14 @@ func TestUpdatePortIntegration(t *testing.T) {
 			}
 
 			if res.StatusCode != tt.want {
-				t.Errorf("%s; want %d, got %d", ERR_STATUS_CODE, tt.want, res.StatusCode)
+				t.Errorf("%s; want %d, got %d", ErrStatusCode, tt.want, res.StatusCode)
 			}
 		})
 
 	}
 
 	body := dto.CreatePortRequest{
-		Location: UPDATED,
+		Location: Updated,
 	}
 	bodyReader, err := prepBody(body)
 	if err != nil {
@@ -175,7 +175,7 @@ func TestUpdatePortIntegration(t *testing.T) {
 	}
 
 	if res.StatusCode != 204 {
-		t.Errorf("%s. Want %d, Got %d", ERR_STATUS_CODE, http.StatusNoContent, res.StatusCode)
+		t.Errorf("%s. Want %d, Got %d", ErrStatusCode, http.StatusNoContent, res.StatusCode)
 	}
 
 	var port model.Port
@@ -189,11 +189,11 @@ func TestUpdatePortIntegration(t *testing.T) {
 	}
 
 	if port.Id != currId {
-		t.Errorf("%s. Want %d, Got %d", ERR_ID, currId, port.Id)
+		t.Errorf("%s. Want %d, Got %d", ErrID, currId, port.Id)
 	}
 
-	if port.Location != UPDATED {
-		t.Errorf("%s. Want %s, Got %s", ERR_LOCATION, UPDATED, port.Location)
+	if port.Location != Updated {
+		t.Errorf("%s. Want %s, Got %s", ErrLocation, Updated, port.Location)
 	}
 
 }
@@ -219,6 +219,6 @@ func TestDeletePortIntegration(t *testing.T) {
 	}
 
 	if res.StatusCode != http.StatusNoContent {
-		t.Errorf("%s. Want %d, Got %d", ERR_STATUS_CODE, http.StatusNoContent, res.StatusCode)
+		t.Errorf("%s. Want %d, Got %d", ErrStatusCode, http.StatusNoContent, res.StatusCode)
 	}
 }

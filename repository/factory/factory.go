@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-const MIDDLEWARE_CTX_KEY = "repo_middleware_ctx_key"
+const MiddlewareCtxKey = "repo_middleware_ctx_key"
 
 type RepoFactory interface {
 	CreatePortRepo() port.PortRepository
@@ -70,9 +70,9 @@ func (factory PgRepoFactory) CreateCruiseRepo() cruise.CruiseRepository {
 }
 
 func CtxWithRepoFactory(ctx context.Context, factory RepoFactory) context.Context {
-	return context.WithValue(ctx, MIDDLEWARE_CTX_KEY, factory)
+	return context.WithValue(ctx, MiddlewareCtxKey, factory)
 }
 
 func GetRepoFactory(r *http.Request) RepoFactory {
-	return r.Context().Value(MIDDLEWARE_CTX_KEY).(RepoFactory)
+	return r.Context().Value(MiddlewareCtxKey).(RepoFactory)
 }

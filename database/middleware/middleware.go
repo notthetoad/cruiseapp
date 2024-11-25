@@ -19,7 +19,7 @@ func DbMiddleware(next http.Handler) http.HandlerFunc {
 		db := dbHandler.Open()
 		defer db.Close()
 
-		ctx := context.WithValue(r.Context(), database.DB_CONNECTION_CTX_KEY, db)
+		ctx := context.WithValue(r.Context(), database.DbConnectionCtxKey, db)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
