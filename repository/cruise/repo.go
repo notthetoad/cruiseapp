@@ -95,8 +95,13 @@ func (repo PgCruiseRepository) Update(c *model.Cruise) error {
 		from_location = $3,
 		to_location = $4
 	WHERE id = $5`
-	res, err := repo.conn.Exec(stmt, c.StartDate, c.EndDate, c.FromLocation.Id, c.ToLocation.Id, c.Id)
+	tx, err := repo.conn.Begin()
 	if err != nil {
+		return err
+	}
+	res, err := tx.Exec(stmt, c.StartDate, c.EndDate, c.FromLocation.Id, c.ToLocation.Id, c.Id)
+	if err != nil {
+		tx.Rollback()
 		return err
 	}
 	rows, err := res.RowsAffected()
@@ -105,6 +110,9 @@ func (repo PgCruiseRepository) Update(c *model.Cruise) error {
 	}
 	if rows != 1 {
 		return repository.NewNotFoundError(c.Id)
+	}
+	if err = tx.Commit(); err != nil {
+		return err
 	}
 
 	return nil
